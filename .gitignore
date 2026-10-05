@@ -18,6 +18,20 @@ unpackage
 *.apk
 *.wgt
 
+# 签名证书 / 密钥（⚠️ 绝不入库；pack-android.ps1 -Cert 0 会用到 certs\*.keystore）
+certs
+*.keystore
+*.jks
+*.p12
+*.pfx
+*.pem
+*.key
+
+# 本地环境变量 / 私有配置
+.env
+.env.*
+!.env.example
+
 # Editor directories and files
 .idea
 *.suo
