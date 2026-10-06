@@ -2,7 +2,7 @@
   <!-- 作品卡片组件 - 双列瀑布流使用 -->
   <view class="work-card" @click="handleClick">
     <view class="card-image">
-      <image :src="src" mode="aspectFill" class="image"></image>
+      <image :src="current" mode="aspectFill" class="image" @error="onError"></image>
       <!-- 收藏角标 -->
       <view v-if="showFav" class="fav-badge">
         <text class="fav-icon">♥</text>
@@ -19,6 +19,17 @@
 </template>
 
 <script setup>
+import { ref, watch } from 'vue'
+
+// 内联默认作品图 SVG（浅灰底 + 图标 + 占位文字），避免 cover 失效时裂图
+const DEFAULT_WORK = 'data:image/svg+xml;utf8,' + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400"><rect width="600" height="400" fill="#F2F2F2"/>' +
+  '<g fill="#C8C8C8"><rect x="250" y="150" width="100" height="80" rx="6"/>' +
+  '<circle cx="278" cy="180" r="10" fill="#A8A8A8"/>' +
+  '<path d="M268 222 L292 196 L312 214 L336 188 L342 222 Z" fill="#A8A8A8"/></g>' +
+  '<text x="300" y="270" font-family="Helvetica,Arial,sans-serif" font-size="22" fill="#9A9A9A" text-anchor="middle">暂无图片</text></svg>'
+)
+
 const props = defineProps({
   src: {
     type: String,
@@ -43,6 +54,13 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['click'])
+
+// current 跟随 props.src；src 为空或加载失败时回落到 DEFAULT_WORK
+const current = ref(props.src || DEFAULT_WORK)
+watch(() => props.src, (v) => { current.value = v || DEFAULT_WORK })
+function onError() {
+  if (current.value !== DEFAULT_WORK) current.value = DEFAULT_WORK
+}
 
 function handleClick() {
   emit('click')
