@@ -39,3 +39,10 @@ certs
 *.njsproj
 *.sln
 *.sw?
+
+# 本地素材 / 原始资料（不入库；md/ 与 docs/backend/ 内容逐字节重复）
+/png/
+/md/
+
+# 校验脚本临时产物
+.tmp-bundle.js

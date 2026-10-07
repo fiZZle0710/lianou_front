@@ -11,10 +11,36 @@
 | AppID | `__UNI__F1A3968` | DCloud 平台分配，云打包必需 |
 | 包名 | `com.lianou.app` | `app-plus.distribute.android.packagename`，上架后不可随意更改 |
 | 版本 | versionName 1.0.0 / versionCode 100 | 每次发版需递增 versionCode |
-| 图标母版 | `lianou.jpg`（1280×1280，工程根目录） | 根目录文件不会打进 APK |
-| 图标产物 | `src/static/app-icon/icon-{72,96,144,192}.png` | 由母版缩放，分别对应 hdpi/xhdpi/xxhdpi/xxxhdpi |
+| 图标母版 | `src/assets/app-icon/lianou-master-1280.jpg`（1280×1280） | **不在 `static/` 下，不会打进任何包体**，只作缩放源 |
+| 图标产物 | `src/static/app-icon/icon-{72,96,144,192}.png` | `manifest.json` 里声明的路径相对 `src/`；由母版缩放，分别对应 hdpi/xhdpi/xxhdpi/xxxhdpi |
 
-**改图标**：替换根目录 `lianou.jpg`（正方形，≥192×192），重新生成 4 个 PNG 后覆盖 `src/static/app-icon/`。
+**改图标**：替换母版 `src/assets/app-icon/lianou-master-1280.jpg`（或任意一张 ≥192×192 的正方形图），重新生成 4 个 PNG 后覆盖 `src/static/app-icon/`。
+
+> 重新生成（本机 PowerShell，无需装额外工具；高清双三次采样）：
+> ```powershell
+> Add-Type -AssemblyName System.Drawing
+> $root = 'd:\Data\app_project\my-app-new'
+> $img = [System.Drawing.Image]::FromFile((Join-Path $root 'src\assets\app-icon\lianou-master-1280.jpg'))
+> foreach ($s in @(72, 96, 144, 192)) {
+>   $bmp = New-Object System.Drawing.Bitmap($s, $s, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)
+>   $g = [System.Drawing.Graphics]::FromImage($bmp)
+>   $g.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+>   $g.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::HighQuality
+>   $g.PixelOffsetMode = [System.Drawing.Drawing2D.PixelOffsetMode]::HighQuality
+>   $g.DrawImage($img, 0, 0, $s, $s)
+>   $g.Dispose()
+>   $bmp.Save((Join-Path $root ('src\static\app-icon\icon-' + $s + '.png')), [System.Drawing.Imaging.ImageFormat]::Png)
+>   $bmp.Dispose()
+> }
+> $img.Dispose()
+> ```
+
+**图标变更记录**
+| 日期 | 母版 | 说明 |
+| --- | --- | --- |
+| 2026-09-16 | `lianou.jpg` | 首版四档 PNG |
+| 2026-10-05 | `lianou.jpg`（新版藕形图标） | 按新图标重出 `icon-{72,96,144,192}.png`；`manifest.json` 路径未变，无需改动 |
+| 2026-10-07 | `lianou.jpg`（新版藕形图标） | 母版移出工程根目录 → `src/assets/app-icon/lianou-master-1280.jpg`（根目录不再放素材；母版不在 `static/` 下，不进包体）；4 档 PNG 与 `manifest.json` 均未改动 |
 
 ## 二、AppID 申请（备查）
 

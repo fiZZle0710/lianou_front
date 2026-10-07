@@ -45,6 +45,9 @@ npm run dev:h5              # 浏览器开发调试 → http://127.0.0.1:5173（
 | --- | --- |
 | `src/pages.json` | 页面路由 + 全局样式。**新增页面必须在这里登记** |
 | `src/manifest.json` | 应用配置：AppID、包名 `com.lianou.app`、版本、图标、权限 |
+| `src/static/app-icon/` | **APK 图标产物**：4 档 PNG（`manifest.json` → `app-plus.distribute.icons` 声明，路径相对 `src/`） |
+| `src/assets/app-icon/` | 图标 1280 母版 `lianou-master-1280.jpg`。**只作缩放源，不进任何端包体**（只有 `static/` 会被整体复制） |
+| `logs/` | dev 运行日志（已 gitignore） |
 | `src/App.vue` / `src/main.js` | 全局入口 |
 | `src/utils/config.js` | 环境地址开关（`USE_PROD` / `DEV_BASE_URL` / `PROD_BASE_URL`） |
 | `src/utils/request.js`、`src/api/*.js` | 请求封装 / 接口函数 |

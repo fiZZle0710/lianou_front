@@ -49,7 +49,8 @@
             },
             /* ios打包配置 */
             "ios" : {},
-            /* 应用图标（Android 各屏幕密度），源图 lianou.jpg 1280x1280 */
+            /* 应用图标（Android 各屏幕密度）；路径相对 src/，即文件在 src/static/app-icon/
+               1280 母版在 src/assets/app-icon/lianou-master-1280.jpg（不在 static/ 里，不进包体） */
             "icons" : {
                 "android" : {
                     "hdpi" : "static/app-icon/icon-72.png",
