@@ -36,6 +36,7 @@
     { "path": "pages/location/index" },
     { "path": "pages/feed/edit/index" },
     { "path": "pages/feed/detail/index" },
+    { "path": "pages/coop/mine/index" },
     { "path": "pages/coop/edit/index" },
     { "path": "pages/album/index" },
     { "path": "pages/dev/check" }
