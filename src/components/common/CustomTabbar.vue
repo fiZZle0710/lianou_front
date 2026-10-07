@@ -53,6 +53,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import CreateModal from './CreateModal.vue'
+import nav from '@/utils/nav.js'
 
 const showTabbar = ref(true)
 const currentPage = ref('')
@@ -76,19 +77,10 @@ function goPage(url, name) {
   })
 }
 
+// 菜单 key → 页面路由统一维护在 utils/nav.js 的 goCreate()
 function handleCreateSelect(key) {
   showCreateModal.value = false
-  if (key === 'shoot_video') {
-    // 拍摄视频：进编辑器后自动调起相机
-    uni.navigateTo({ url: '/pages/editor/index?from=shoot' })
-  } else if (key === 'import_video') {
-    // 导入视频：进编辑器后自动调起相册
-    uni.navigateTo({ url: '/pages/editor/index?from=album' })
-  } else if (key === 'import_image') {
-    uni.navigateTo({ url: '/pages/album/index' })
-  } else if (key === 'new_coop') {
-    uni.navigateTo({ url: '/pages/coop/edit/index' })
-  }
+  nav.goCreate(key)
 }
 </script>
 

@@ -8,7 +8,7 @@
       </view>
       <text class="nav-title">项目中心</text>
       <view class="nav-right">
-        <text class="nav-icon" @click="goPublish">＋</text>
+        <text class="nav-icon" @click="showCreateModal = true">＋</text>
       </view>
     </view>
 
@@ -129,6 +129,13 @@
       </view>
     </view>
 
+    <!-- 加号 → 与底栏 + / 广场右上角 + 共用同一份菜单（CreateModal） -->
+    <CreateModal
+      v-if="showCreateModal"
+      @close="showCreateModal = false"
+      @select="handleCreate"
+    />
+
     <CustomTabbar />
   </view>
 </template>
@@ -136,6 +143,7 @@
 import { ref, computed } from "vue"
 import { onLoad } from "@dcloudio/uni-app"
 import CustomTabbar from "@/components/common/CustomTabbar.vue"
+import CreateModal from "@/components/common/CreateModal.vue"
 import ProjectCard from "@/components/project/ProjectCard.vue"
 import DemoBadge from "@/components/common/DemoBadge.vue"
 import nav from '@/utils/nav.js'
@@ -178,6 +186,8 @@ const isDemo = ref(false)
 const page = ref(1)
 const total = ref(0)
 const list = ref([])
+// 「+」发布菜单（与底栏 +、广场右上角 + 同一份 CreateModal）
+const showCreateModal = ref(false)
 
 const statusParam = computed(() => {
   const tag = filterTags.find((t) => t.key === activeTag.value)
@@ -342,7 +352,12 @@ function applyFilter() {
 
 function goDetail(item) { nav.goDetail('project', item.id) }
 function goManage() { uni.navigateTo({ url: "/pages/project/manage" }) }
-function goPublish() { uni.navigateTo({ url: "/pages/publish/index" }) }
+
+// 菜单 key → 页面路由统一维护在 utils/nav.js 的 goCreate()
+function handleCreate(key) {
+  showCreateModal.value = false
+  nav.goCreate(key)
+}
 </script>
 <style scoped>
 .page { background: #f5f6fa; height: 100vh; display: flex; flex-direction: column; }

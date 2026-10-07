@@ -3,7 +3,7 @@
   <view class="page">
     <CustomNavbar title="广场">
       <template #right>
-        <view class="nav-btn" @click="showPublishModal = true">
+        <view class="nav-btn" @click="showCreateModal = true">
           <text class="nav-icon publish-icon">+</text>
         </view>
       </template>
@@ -117,24 +117,12 @@
       </view>
     </scroll-view>
 
-    <!-- 右上角加号弹窗 -->
-    <view v-if="showPublishModal" class="modal-mask" @click="showPublishModal = false">
-      <view class="modal-content" @click.stop>
-        <view class="modal-item" data-type="dynamic" @click="goPublish">
-          <view class="modal-icon-wrap">
-            <text class="modal-icon">📝</text>
-          </view>
-          <text class="modal-label">发布动态</text>
-        </view>
-        <view class="modal-item" data-type="coop" @click="goPublish">
-          <view class="modal-icon-wrap">
-            <text class="modal-icon">🤝</text>
-          </view>
-          <text class="modal-label">发起共创</text>
-        </view>
-        <view class="modal-cancel" @click="showPublishModal = false">取消</view>
-      </view>
-    </view>
+    <!-- 右上角加号 → 与底栏 + / 项目中心 + 共用同一份菜单（CreateModal） -->
+    <CreateModal
+      v-if="showCreateModal"
+      @close="showCreateModal = false"
+      @select="handleCreate"
+    />
 
   </view>
     <CustomTabbar />
@@ -146,6 +134,7 @@ import { onShow } from '@dcloudio/uni-app'
 import CustomNavbar from '@/components/common/CustomNavbar.vue'
 import UserAvatar from '@/components/common/UserAvatar.vue'
 import CustomTabbar from '@/components/common/CustomTabbar.vue'
+import CreateModal from '@/components/common/CreateModal.vue'
 import DemoBadge from '@/components/common/DemoBadge.vue'
 import nav from '@/utils/nav.js'
 import { getFeed, getFollowingFeed, shareWork } from '@/api/works.js'
@@ -161,7 +150,7 @@ const tabs = [
 const PAGE_SIZE = 10
 
 const activeTab = ref('recommend')
-const showPublishModal = ref(false)
+const showCreateModal = ref(false)
 const loading = ref(false)     // 首屏/分页请求中
 const refreshing = ref(false)  // 下拉刷新中
 const finished = ref(false)    // 没有更多了
@@ -263,14 +252,10 @@ function goProject(item) {
   if (item && item.projectId) nav.goDetail('project', item.projectId)
 }
 
-function goPublish(e) {
-  const type = e.currentTarget.dataset.type
-  showPublishModal.value = false
-  if (type === 'dynamic') {
-    uni.navigateTo({ url: '/pages/feed/edit/index' })
-  } else {
-    uni.navigateTo({ url: '/pages/coop/edit/index' })
-  }
+// 菜单 key → 页面路由统一维护在 utils/nav.js 的 goCreate()
+function handleCreate(key) {
+  showCreateModal.value = false
+  nav.goCreate(key)
 }
 
 /**
@@ -505,77 +490,5 @@ async function shareFeed(item) {
 .empty-text {
   font-size: 26rpx;
   color: #bbb;
-}
-
-/* 弹窗 */
-.modal-mask {
-  position: fixed;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.4);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-content {
-  width: 480rpx;
-  background: #fff;
-  border-radius: 24rpx;
-  overflow: hidden;
-  animation: popIn 0.2s ease;
-}
-
-@keyframes popIn {
-  from { transform: scale(0.8); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-.modal-item {
-  display: flex;
-  align-items: center;
-  padding: 36rpx 40rpx;
-  border-bottom: 1px solid #f0f0f0;
-  gap: 20rpx;
-}
-
-.modal-item:active {
-  background: #f8f8f8;
-}
-
-.modal-icon-wrap {
-  width: 80rpx;
-  height: 80rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f5f5f5;
-  border-radius: 50%;
-}
-
-.modal-icon {
-  font-size: 36rpx;
-}
-
-.modal-label {
-  font-size: 30rpx;
-  color: #333;
-  font-weight: 500;
-}
-
-.modal-cancel {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 30rpx;
-  font-size: 28rpx;
-  color: #999;
-}
-
-.modal-cancel:active {
-  background: #f8f8f8;
 }
 </style>
