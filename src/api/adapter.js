@@ -664,12 +664,28 @@ export function normalizeNotificationList(data) {
 
 // ═══════════════ 关注对象 ═══════════════
 
-/** 关注 / 粉丝列表项（10.4 / 10.5）：{ user_id, nickname, avatar, bio, is_mutual, followed_at } */
+/**
+ * 关注 / 粉丝列表项（10.4 / 10.5）：{ user_id, nickname, avatar, bio, is_mutual, followed_at }
+ *
+ * TODO(契约待后端确认)：接口文档里**没有**「是否在线 / 是否有新动态」字段，
+ *   广场「关注」Tab 顶部横条要显示「在线」标与红点，所以这里**有就透出、没有就是 undefined**，
+ *   页面据此隐藏标记（不猜默认值，避免把所有人都显示成在线）。
+ */
 export function normalizeFollowUser(raw) {
   const u = raw || {}
   const base = normalizeUser(u)
   const followedAt = pick(u, 'followed_at')
-  return { ...base, isMutual: bool(pick(u, 'is_mutual')), followedAt, time: fromNow(followedAt) }
+  const online = pick(u, 'online', 'is_online')
+  const hasNew = pick(u, 'has_new', 'hasNew')
+  return {
+    ...base,
+    isMutual: bool(pick(u, 'is_mutual')),
+    // '' = 后端没给这个字段（pick 找不到会返回 ''）→ 保持 undefined
+    online: online === '' ? undefined : bool(online),
+    hasNew: hasNew === '' ? undefined : bool(hasNew),
+    followedAt,
+    time: fromNow(followedAt)
+  }
 }
 
 /** 关注 / 粉丝列表 → 数组 */

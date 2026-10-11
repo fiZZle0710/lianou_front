@@ -7,12 +7,22 @@
 
     <view class="nav-content">
 
-      <view
-      v-if="showBack"
-      class="back"
-      @click="goBack"
-      >
-      ←
+      <view class="left">
+
+        <!-- 左槽：页面自定义内容（如广场的「写笔记」入口）；
+             不传时保持原行为 —— 非首页显示返回箭头 -->
+        <slot name="left">
+
+          <view
+          v-if="showBack"
+          class="back"
+          @click="goBack"
+          >
+          ←
+          </view>
+
+        </slot>
+
       </view>
 
 
@@ -99,6 +109,17 @@ align-items:center;
 justify-content:space-between;
 
 padding:0 15px;
+
+}
+
+
+.left{
+
+display:flex;
+
+align-items:center;
+
+min-width:36px;
 
 }
 

@@ -84,12 +84,33 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 import WorkCard from '@/components/common/WorkCard.vue'
 
 const keyword = ref('')
 const searched = ref(false)
 const hasMore = ref(true)
 const resultCount = ref(0)
+
+/**
+ * 支持从广场「#话题#」点进来直接搜：/pages/search/index?keyword=xxx
+ * （放在 refs 之后，保证回调执行时 keyword / doSearch 都已就绪）
+ */
+onLoad((options) => {
+  let kw = (options && options.keyword) || ''
+  // H5 一般已解码，小程序可能仍是编码串 —— 只在看起来像编码串时才解一次
+  if (/%[0-9A-Fa-f]{2}/.test(kw)) {
+    try {
+      kw = decodeURIComponent(kw)
+    } catch (e) {
+      // 解码失败就按原串搜
+    }
+  }
+  if (kw) {
+    keyword.value = kw
+    doSearch()
+  }
+})
 
 // 模拟搜索结果数据（占位）
 const searchResults = ref([])

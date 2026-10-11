@@ -50,6 +50,19 @@ export const mockWorks = {
   }
 }
 
+// 我关注的用户（10.4 GET /following）——广场「关注」Tab 顶部横条用，key = 用户id
+// ⚠️ 对接后端：字段名与 normalizeFollowUser 对齐（user_id / nickname / avatar / is_mutual）
+// online / has_new：后端暂无这两个字段，只在 mock 里给样例，
+//   便于看设计稿的「在线」标与右上红点；真实接口没给时页面会自动隐藏
+export const mockFollowingUsers = {
+  1: { user_id: 1, nickname: "桂花糕", avatar: "", is_mutual: true, online: true, has_new: true },
+  2: { user_id: 2, nickname: "小汤圆", avatar: "", is_mutual: true, online: true, has_new: false },
+  3: { user_id: 3, nickname: "纸鸢", avatar: "", is_mutual: false, online: true, has_new: false },
+  4: { user_id: 4, nickname: "糯米团子", avatar: "", is_mutual: true, online: true, has_new: true },
+  5: { user_id: 5, nickname: "铁皮青蛙", avatar: "", is_mutual: false, online: true, has_new: true },
+  6: { user_id: 6, nickname: "冯大侠", avatar: "", is_mutual: false, online: false, has_new: false }
+}
+
 // 项目，key = 项目id
 export const mockProjects = {
   1: { id: 1, title: "科幻短片共创", owner: "罗大侠", ownerId: 1, ownerLevel: 12, coopCount: 8, skills: ["编剧", "导演", "剪辑"], requirements: [{ label: "主题：科幻", ok: true }, { label: "等级 LV.5 以上", ok: true }, { label: "有 1 次共创经历", ok: false }, { label: "优先技能：剪辑", ok: true }], members: ["张", "李", "王"], current: 3, total: 6, deadline: "2026-09-01", intro: "寻找热爱科幻的伙伴一起完成一部短片，欢迎加入！" },
