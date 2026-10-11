@@ -25,10 +25,10 @@
         </view>
       </view>
 
-      <!-- 右槽：搜索（同样取自设计稿 pptm 的矢量原稿 image16.svg），33rpx = 设计值 16.5px -->
+      <!-- 右槽：搜索（统一组件 SearchIcon，33rpx = 设计值 16.5px，全站放大镜的唯一来源） -->
       <template #right>
         <view class="nav-icon-btn" @click="goSearch">
-          <image class="nav-icon-img nav-icon-search" src="/static/icon-search.png" mode="aspectFit" />
+          <SearchIcon />
         </view>
       </template>
     </CustomNavbar>
@@ -202,6 +202,7 @@ import CustomTabbar from '@/components/common/CustomTabbar.vue'
 import CreateModal from '@/components/common/CreateModal.vue'
 import DemoBadge from '@/components/common/DemoBadge.vue'
 import SafeImage from '@/components/common/SafeImage.vue'
+import SearchIcon from '@/components/common/SearchIcon.vue'
 import nav from '@/utils/nav.js'
 import { getFeed, getFollowingFeed, shareWork, likeWork, unlikeWork } from '@/api/works.js'
 import { getFollowing } from '@/api/user.js'
@@ -483,9 +484,11 @@ function openMore(item) {
 </script>
 
 <style scoped>
-/* 页面底 #E9EBE9（设计稿底色层是内嵌位图，取其中间调）；卡片白；正文 #262626 */
+/* 页面底：设计稿的底色层是一张青绿渐变位图（pptm 里的 image30.png），
+   老师要求先统一用白色，暂时不引这张贴图；卡片白、正文 #262626。
+   注意：底色转白后卡片的白色底不再与页面底色区分，边界只由照片圆角表达。 */
 .page {
-  background: #E9EBE9;
+  background: #FFFFFF;
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -508,11 +511,6 @@ function openMore(item) {
 .nav-icon-note {
   width: 42rpx;
   height: 42rpx;
-}
-
-.nav-icon-search {
-  width: 33rpx;
-  height: 33rpx;
 }
 
 /* 中间胶囊 Tab（设计值：胶囊 64.3x31.7px，圆角 15.9px，文字 16.7px；两胶囊中心距 55.9px → 700 里几乎相接） */
