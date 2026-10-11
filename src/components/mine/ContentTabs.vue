@@ -10,7 +10,9 @@
         :data-key="item"
         @click="change"
       >
-        {{ item }}
+        <text class="tab-text">{{ item }}</text>
+        <!-- 作品数量：设计稿里「作品」右上角带一个灰色数字 -->
+        <text v-if="item === '作品'" class="tab-count">{{ works.length }}</text>
       </view>
 
       <!-- 搜索图标/搜索框 -->
@@ -68,24 +70,13 @@
         <view class="waterfall">
           <view class="waterfall-column">
             <view v-for="(item, index) in leftWorks" :key="index" class="waterfall-item">
-              <WorkCard
-                :src="item.src"
-                :title="item.title"
-                :author="item.author"
-                :likes="item.likes"
-                :showFav="item.showFav"
-              />
+              <!-- 「我的」页用深色作品卡（含精选角标、副标题、浏览/点赞），与广场的白卡区分 -->
+              <MineWorkCard v-bind="item" @click="openWork(item)" />
             </view>
           </view>
           <view class="waterfall-column">
             <view v-for="(item, index) in rightWorks" :key="index" class="waterfall-item">
-              <WorkCard
-                :src="item.src"
-                :title="item.title"
-                :author="item.author"
-                :likes="item.likes"
-                :showFav="item.showFav"
-              />
+              <MineWorkCard v-bind="item" @click="openWork(item)" />
             </view>
           </view>
         </view>
@@ -184,7 +175,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import WorkCard from '@/components/common/WorkCard.vue'
+import MineWorkCard from '@/components/mine/MineWorkCard.vue'
 import SearchIcon from '@/components/common/SearchIcon.vue'
 
 const props = defineProps({
@@ -201,13 +192,18 @@ const active = ref('作品')
 const showSearch = ref(false)
 const searchKeyword = ref('')
 
-// 作品数据（占位）
+// 作品数据（占位；字段按设计稿：封面/标题/副标题/浏览/点赞/精选/已赞）
 const works = ref([
-  { src: '', title: '作品标题1', author: '作者A', likes: 128, showFav: true },
-  { src: '', title: '作品标题2', author: '作者B', likes: 256, showFav: false },
-  { src: '', title: '作品标题3', author: '作者C', likes: 64, showFav: true },
-  { src: '', title: '作品标题4', author: '作者D', likes: 512, showFav: false }
+  { src: '', title: '《折柳寄相思》', subtitle: '水墨设色 · 个人设集', views: '950', likes: 312, featured: true, liked: false },
+  { src: '', title: '《柳岸月夜归》', subtitle: '青绿山水 · 癸卯秋夜记', views: '1.8k', likes: 632, featured: false, liked: true },
+  { src: '', title: '《山居即事》', subtitle: '水墨设色 · 个人设集', views: '740', likes: 208, featured: false, liked: false },
+  { src: '', title: '《雨歇檐下》', subtitle: '写意人物 · 丙午春日', views: '520', likes: 166, featured: true, liked: false }
 ])
+
+function openWork(item) {
+  // 后端作品详情接口已就绪时改成 goDetail('work', item.id)
+  uni.showToast({ title: item.title, icon: 'none' })
+}
 
 const leftWorks = computed(() => works.value.filter((_, i) => i % 2 === 0))
 const rightWorks = computed(() => works.value.filter((_, i) => i % 2 === 1))
@@ -287,16 +283,16 @@ function shareTo(e) {
 
 <style scoped>
 .container {
-  background: #f5f5f5;
+  background: #ffffff;
+  margin-top: 30rpx; /* 设计稿：与上方按钮组间距约 16px */
 }
 
 /* 分类栏 */
 .tabs {
-  height: 50px;
+  height: 96rpx;
   display: flex;
   align-items: center;
   background: #fff;
-  border-bottom: 1px solid #eee;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -304,28 +300,39 @@ function shareTo(e) {
 
 .tab {
   flex: 1;
-  height: 50px;
+  height: 96rpx;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   position: relative;
-  font-size: 14px;
-  color: #666;
+  padding-top: 18rpx;
+  color: #9aa39f;
+}
+
+.tab-text {
+  font-size: 30rpx; /* 设计稿：约 16px */
+}
+
+/* 作品数量：小号上标，灰绿色 */
+.tab-count {
+  margin-left: 6rpx;
+  font-size: 20rpx;
+  color: #8fbfa8;
 }
 
 .tab.active {
   font-weight: 600;
-  color: #333;
+  color: #1f2422;
 }
 
 .tab.active::after {
   content: '';
   position: absolute;
-  bottom: 0;
-  width: 30px;
-  height: 3px;
-  background: #333;
-  border-radius: 2px;
+  bottom: 14rpx;
+  width: 80rpx;
+  height: 6rpx;
+  background: #16bd88; /* 设计稿：选中态是薄荷绿下划线 */
+  border-radius: 3rpx;
 }
 
 /* 搜索区域 */
@@ -377,7 +384,7 @@ function shareTo(e) {
 }
 
 .tab-content {
-  padding: 12px;
+  padding: 20rpx 41rpx 0; /* 设计稿：页面左右内缩 22px */
 }
 
 /* 发布状态卡片 */
@@ -446,13 +453,14 @@ function shareTo(e) {
 /* 双列瀑布流 */
 .waterfall {
   display: flex;
-  gap: 10px;
+  gap: 24rpx; /* 设计稿：两列间距约 12px */
 }
 
 .waterfall-column {
   flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 24rpx; /* 卡片之间的竖向间距 */
 }
 
 .waterfall-item {

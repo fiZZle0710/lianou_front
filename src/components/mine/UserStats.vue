@@ -1,92 +1,68 @@
 <template>
+  <!-- 数据卡：设计稿为深色半透明卡片，三列之间用细分隔线（105px 高、圆角 16px、左右内缩 22px） -->
   <view class="stats">
-    <view
-      v-for="item in list"
-      :key="item.name"
-      class="item"
-      :class="{ active: clickItem === item.name }"
-      @click="handleClick(item)"
-    >
-      <text class="num">{{ item.num }}</text>
-      <text>{{ item.label }}</text>
-    </view>
+    <template v-for="(item, i) in list" :key="item.name">
+      <view v-if="i > 0" class="split"></view>
+      <view class="item" @click="handleClick(item)">
+        <text class="num">{{ item.num }}</text>
+        <text class="label">{{ item.label }}</text>
+      </view>
+    </template>
   </view>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-
-const clickItem = ref('')
-
+// 数值先按设计稿示例；后端有「我的资料」接口后替换
 const list = [
-  { name: 'fans', num: 128, label: '粉丝' },
-  { name: 'follow', num: 56, label: '关注' },
-  { name: 'works', num: 23, label: '作品' }
+  { name: 'fans', num: '3.2万', label: '粉丝', url: '/pages/fans/index' },
+  { name: 'follow', num: '128', label: '关注', url: '/pages/follow/index' },
+  { name: 'works', num: '49', label: '作品', url: '' }
 ]
 
 function handleClick(item) {
-  // 作品暂时无效果
-  if (item.name === 'works') {
-    return
-  }
-
-  // 设置点击态
-  clickItem.value = item.name
-
-  // 延迟跳转，并在跳转后恢复状态
-  setTimeout(() => {
-    if (item.name === 'fans') {
-      uni.navigateTo({
-        url: '/pages/fans/index',
-        complete: () => {
-          // 跳转完成后恢复点击状态
-          setTimeout(() => {
-            clickItem.value = ''
-          }, 100)
-        }
-      })
-    }
-
-    if (item.name === 'follow') {
-      uni.navigateTo({
-        url: '/pages/follow/index',
-        complete: () => {
-          setTimeout(() => {
-            clickItem.value = ''
-          }, 100)
-        }
-      })
-    }
-  }, 150)
+  if (!item.url) return
+  uni.navigateTo({ url: item.url })
 }
 </script>
 
 <style scoped>
 .stats {
   display: flex;
-  flex-direction: row;
-  background: white;
-  padding: 20px 0;
+  align-items: center;
+  margin: 26rpx 41rpx 0; /* 设计稿：左右各 22px */
+  height: 196rpx; /* 设计稿：105px */
+  border-radius: 30rpx; /* 设计稿：16px */
+  background: rgba(26, 32, 29, 0.82);
 }
 
 .item {
   flex: 1;
-  height: 70px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  transition: 0.15s;
+  height: 100%;
 }
 
-.item.active {
-  background: #eee;
+.item:active {
+  opacity: 0.7;
 }
 
 .num {
-  font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 5px;
+  font-size: 38rpx; /* 设计稿：20px */
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.label {
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.split {
+  width: 2rpx;
+  height: 48rpx;
+  background: rgba(255, 255, 255, 0.16);
 }
 </style>
