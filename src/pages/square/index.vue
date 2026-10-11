@@ -58,10 +58,10 @@
             <view class="rcard-info">
               <text class="rcard-title">{{ item.title || item.text || '未命名作品' }}</text>
               <view class="rcard-meta">
-                <UserAvatar :src="item.avatar" :size="20" />
+                <UserAvatar :src="item.avatar" :size="17" />
                 <text class="rcard-user">{{ item.username }}</text>
                 <view class="rcard-like" @click.stop="toggleLike(item)">
-                  <text class="heart" :class="{ 'heart-on': item.isLiked }">{{ item.isLiked ? '♥' : '♡' }}</text>
+                  <image class="heart" :src="item.isLiked ? ICON_HEART_ON : ICON_HEART" mode="aspectFit" />
                 </view>
               </view>
             </view>
@@ -96,7 +96,7 @@
         <view class="follow-row">
           <view v-for="u in following" :key="u.id" class="follow-cell" @click="goUser(u)">
             <view class="follow-avatar">
-              <UserAvatar :src="u.avatar" :size="56" />
+              <UserAvatar :src="u.avatar" :size="51" />
               <!-- online / hasNew 后端暂无字段，只有接口给了才显示（mock 里有样例） -->
               <view v-if="u.hasNew" class="new-dot"></view>
               <view v-if="u.online" class="online-pill"><text class="online-text">在线</text></view>
@@ -122,49 +122,49 @@
       <view class="plist-block">
         <view v-if="feedList.length" class="plist">
           <view v-for="item in feedList" :key="item.id" class="pcard" @click="goDetail(item)">
-            <!-- 头像 / 昵称 / 时间 -->
-            <view class="pcard-head">
-              <UserAvatar :src="item.avatar" :size="32" />
-              <view class="pcard-user">
+            <!-- 头像 + 右侧内容列（设计稿：昵称/正文/图片/操作都在头像右侧那一列） -->
+            <view class="pcard-main">
+              <UserAvatar :src="item.avatar" :size="44.4" />
+              <view class="pcard-col">
                 <text class="pcard-name">{{ item.username }}</text>
                 <text class="pcard-time">{{ item.time }}</text>
-              </view>
-            </view>
 
-            <!-- 正文：#话题# 用主色高亮并可点进搜索，其余原样（表情走文本） -->
-            <text class="pcard-text">
-              <text
-                v-for="(seg, i) in item.segments"
-                :key="i"
-                :class="{ 'topic': seg.topic }"
-                @click.stop="onSegment(seg)"
-              >{{ seg.text }}</text>
-            </text>
+                <!-- 正文：#话题# 用设计稿话题色 #77BBAC 高亮并可点进搜索，其余原样 -->
+                <text class="pcard-text">
+                  <text
+                    v-for="(seg, i) in item.segments"
+                    :key="i"
+                    :class="{ 'topic': seg.topic }"
+                    @click.stop="onSegment(seg)"
+                  >{{ seg.text }}</text>
+                </text>
 
-            <!-- 大图 -->
-            <SafeImage v-if="item.images.length" class="pcard-cover" :src="item.images[0]" mode="widthFix" />
+                <!-- 大图 -->
+                <SafeImage v-if="item.images.length" class="pcard-cover" :src="item.images[0]" mode="widthFix" />
 
-            <!-- 关联共创项目轻量入口（设计稿无此项，但后端作品带 project_id，保留可点） -->
-            <view v-if="item.projectId" class="pcard-coop" @click.stop="goProject(item)">
-              <text class="pcard-coop-text">🤝 关联共创项目 ›</text>
-            </view>
+                <!-- 关联共创项目轻量入口（设计稿无此项，但后端作品带 project_id，保留可点） -->
+                <view v-if="item.projectId" class="pcard-coop" @click.stop="goProject(item)">
+                  <text class="pcard-coop-text">🤝 关联共创项目 ›</text>
+                </view>
 
-            <!-- 赞 / 评论 / 分享 + 更多 -->
-            <view class="pcard-actions">
-              <view class="paction" @click.stop="toggleLike(item)">
-                <text class="paction-icon" :class="{ 'heart-on': item.isLiked }">{{ item.isLiked ? '♥' : '♡' }}</text>
-                <text class="paction-text">赞</text>
-              </view>
-              <view class="paction" @click.stop="goDetail(item)">
-                <text class="paction-icon">💬</text>
-                <text class="paction-text">评论</text>
-              </view>
-              <view class="paction" @click.stop="shareFeed(item)">
-                <text class="paction-icon">↗</text>
-                <text class="paction-text">分享</text>
-              </view>
-              <view class="paction-more" @click.stop="openMore(item)">
-                <text class="paction-more-icon">⋮</text>
+                <!-- 赞 / 评论 / 分享 + 更多（图标均取自设计稿 pptm；点赞后换红心以给出反馈） -->
+                <view class="pcard-actions">
+                  <view class="paction" @click.stop="toggleLike(item)">
+                    <image class="paction-icon" :src="item.isLiked ? ICON_HEART_ON : ICON_LIKE" mode="aspectFit" />
+                    <text class="paction-text">赞</text>
+                  </view>
+                  <view class="paction" @click.stop="goDetail(item)">
+                    <image class="paction-icon paction-icon-comment" :src="ICON_COMMENT" mode="aspectFit" />
+                    <text class="paction-text">评论</text>
+                  </view>
+                  <view class="paction" @click.stop="shareFeed(item)">
+                    <image class="paction-icon paction-icon-share" :src="ICON_SHARE" mode="aspectFit" />
+                    <text class="paction-text">分享</text>
+                  </view>
+                  <view class="paction-more" @click.stop="openMore(item)">
+                    <image class="paction-more-icon" :src="ICON_MORE" mode="aspectFit" />
+                  </view>
+                </view>
               </view>
             </view>
           </view>
@@ -217,6 +217,14 @@ const tabs = [
 
 const PAGE_SIZE = 10
 const FRIEND_FILL_MAX = 3 // 「朋友」筛选时最多补拉几页
+
+// 设计稿（tif/pptm 源文件）内嵌的图标素材，已导出到 src/static/
+const ICON_HEART = '/static/icon-heart.png'        // 未点赞：描边 #AEAEAE（设计稿 image5.png）
+const ICON_HEART_ON = '/static/icon-heart-on.png'  // 已点赞：实心 #DF4C41（设计稿 image12.png）
+const ICON_LIKE = '/static/icon-like.png'          // 赞 #747474（设计稿 image24.png）
+const ICON_COMMENT = '/static/icon-comment.png'    // 评论 #747474（设计稿 image26.png）
+const ICON_SHARE = '/static/icon-share.png'        // 分享 #747474（设计稿 image22.png）
+const ICON_MORE = '/static/icon-more.png'          // ⋮ #747474（设计稿 image28.png）
 
 const activeTab = ref('recommend')
 const showMode = ref('all')     // 关注 Tab 的「全部 / 朋友」
@@ -475,9 +483,9 @@ function openMore(item) {
 </script>
 
 <style scoped>
-/* 主色 #4E6F66；页面底 #EDEFEE；卡片白；正文 #262626 —— 设计稿 m_2 / m_3 */
+/* 页面底 #E9EBE9（设计稿底色层是内嵌位图，取其中间调）；卡片白；正文 #262626 */
 .page {
-  background: #EDEFEE;
+  background: #E9EBE9;
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -507,17 +515,18 @@ function openMore(item) {
   height: 33rpx;
 }
 
-/* 中间胶囊 Tab */
+/* 中间胶囊 Tab（设计值：胶囊 64.3x31.7px，圆角 15.9px，文字 16.7px；两胶囊中心距 55.9px → 700 里几乎相接） */
 .pill-tabs {
   display: flex;
   align-items: center;
-  gap: 12rpx;
+  gap: 0;
 }
 
 .pill {
-  padding: 8rpx 30rpx;
+  padding: 15rpx 31rpx;
   border-radius: 32rpx;
-  font-size: 30rpx;
+  font-size: 33rpx;
+  line-height: 33rpx;
   color: #262626;
 }
 
@@ -543,11 +552,11 @@ function openMore(item) {
   overflow: hidden;
 }
 
-/* ---------- 推荐 Tab：双列瀑布流 ---------- */
+/* ---------- 推荐 Tab：双列瀑布流（设计值：页边距 27.8px、列间距 6.8px、卡片宽 156px、圆角 12.8px） ---------- */
 .waterfall {
   display: flex;
-  gap: 16rpx;
-  padding: 20rpx 20rpx 180rpx;
+  gap: 14rpx;
+  padding: 18rpx 56rpx 180rpx;
 }
 
 .waterfall-col {
@@ -555,12 +564,12 @@ function openMore(item) {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
+  gap: 14rpx;
 }
 
 .rcard {
   background: #FFFFFF;
-  border-radius: 20rpx;
+  border-radius: 26rpx;
   overflow: hidden;
 }
 
@@ -575,7 +584,7 @@ function openMore(item) {
 }
 
 .rcard-title {
-  font-size: 28rpx;
+  font-size: 19rpx;
   color: #262626;
   line-height: 1.45;
   display: -webkit-box;
@@ -587,15 +596,15 @@ function openMore(item) {
 .rcard-meta {
   display: flex;
   align-items: center;
-  margin-top: 14rpx;
+  margin-top: 20rpx;
 }
 
 .rcard-user {
   flex: 1;
   min-width: 0;
-  margin-left: 10rpx;
-  font-size: 24rpx;
-  color: #8A8F8C;
+  margin-left: 12rpx;
+  font-size: 15rpx;
+  color: #747474;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -605,20 +614,17 @@ function openMore(item) {
   padding-left: 10rpx;
 }
 
-/* 心形 / 点赞图标：未赞描边灰、已赞实心红 */
+/* 心形：未赞描边 #AEAEAE、已赞实心 #DF4C41（颜色由设计稿素材自带），13px → 26rpx */
 .heart {
-  font-size: 36rpx;
-  color: #B0B0B0;
+  display: block;
+  width: 26rpx;
+  height: 26rpx;
 }
 
-.heart-on {
-  color: #E64340;
-}
-
-/* ---------- 关注 Tab：关注人横条 ---------- */
+/* ---------- 关注 Tab：关注人横条（设计值：头像 51.1px、单元间距 59.6px、昵称 9.3px） ---------- */
 .follow-strip {
   background: #FFFFFF;
-  padding: 20rpx 0 16rpx;
+  padding: 34rpx 0 16rpx;
   flex-shrink: 0;
   white-space: nowrap;
 }
@@ -626,11 +632,11 @@ function openMore(item) {
 .follow-row {
   display: inline-flex;
   align-items: flex-start;
-  padding: 0 20rpx;
+  padding: 0 56rpx;
 }
 
 .follow-cell {
-  width: 140rpx;
+  width: 119rpx;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -639,46 +645,49 @@ function openMore(item) {
 
 .follow-avatar {
   position: relative;
-  width: 112rpx;
-  height: 112rpx;
+  width: 102rpx;
+  height: 102rpx;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* 右上红点：有新动态（后端暂无字段，接口给了才显示） */
+/* 右上红点：有新动态（后端暂无字段，接口给了才显示）；设计值 6.7px、位置距头像右上内侧 6.5px */
 .new-dot {
   position: absolute;
   top: 2rpx;
-  right: 2rpx;
-  width: 18rpx;
-  height: 18rpx;
+  right: 13rpx;
+  width: 13rpx;
+  height: 13rpx;
   border-radius: 50%;
-  background: #E64340;
-  border: 3rpx solid #FFFFFF;
+  background: #DF4C41;
+  border: 2rpx solid #FFFFFF;
 }
 
-/* 在线小标：压在头像下沿（后端暂无字段，接口给了才显示） */
+/* 在线小标：压在头像下沿（后端暂无字段，接口给了才显示）；设计值 17.8x10.8px、文字 5.6px */
 .online-pill {
   position: absolute;
   bottom: 2rpx;
   left: 50%;
   transform: translateX(-50%);
+  height: 22rpx;
+  display: flex;
+  align-items: center;
+  padding: 0 7rpx;
   background: #FFFFFF;
-  border-radius: 16rpx;
-  padding: 0 10rpx;
+  border-radius: 11rpx;
 }
 
 .online-text {
-  font-size: 18rpx;
-  color: #4E6F66;
-  line-height: 26rpx;
+  font-size: 11rpx;
+  line-height: 1;
+  color: #77BBAC;
 }
 
 .follow-name {
   margin-top: 10rpx;
-  max-width: 132rpx;
-  font-size: 24rpx;
+  max-width: 112rpx;
+  font-size: 19rpx;
   color: #262626;
   overflow: hidden;
   white-space: nowrap;
@@ -690,22 +699,22 @@ function openMore(item) {
 }
 
 .strip-empty-text {
-  font-size: 24rpx;
-  color: #9AA09D;
+  font-size: 22rpx;
+  color: #747474;
 }
 
-/* ---------- 关注 Tab：我的关注 + 全部 / 朋友 ---------- */
+/* ---------- 关注 Tab：我的关注 + 全部 / 朋友（设计值：标题 16.7px、切换项 11.1px） ---------- */
 .mhead {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 24rpx 20rpx 20rpx;
+  padding: 24rpx 56rpx 20rpx;
   background: #FFFFFF;
   border-top: 1rpx solid #E8EAE9;
 }
 
 .mhead-title {
-  font-size: 34rpx;
+  font-size: 33rpx;
   font-weight: 700;
   color: #262626;
 }
@@ -716,9 +725,9 @@ function openMore(item) {
 }
 
 .filter-item {
-  padding: 0 16rpx;
-  font-size: 28rpx;
-  color: #8A8F8C;
+  padding: 0 14rpx;
+  font-size: 22rpx;
+  color: #747474;
 }
 
 .filter-on {
@@ -728,63 +737,65 @@ function openMore(item) {
 
 .filter-split {
   width: 1rpx;
-  height: 28rpx;
+  height: 22rpx;
   background: #DADDDC;
 }
 
-/* ---------- 关注 Tab：单列动态卡片 ---------- */
+/* ---------- 关注 Tab：单列动态卡片（设计值：头像 44.4px、昵称 14.8px 粗、正文 11.1px、图片 241.8x133.9 r7.2） ---------- */
 .plist-block {
   background: #FFFFFF;
   padding-bottom: 180rpx;
 }
 
 .pcard {
-  padding: 24rpx 20rpx 8rpx;
+  padding: 24rpx 56rpx 8rpx;
   border-bottom: 1rpx solid #EEF0EF;
 }
 
-.pcard-head {
+/* 头像 + 内容列：设计稿里昵称 / 正文 / 图片 / 操作都在头像右侧同一列 */
+.pcard-main {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
 }
 
-.pcard-user {
+.pcard-col {
   flex: 1;
   min-width: 0;
-  margin-left: 16rpx;
+  margin-left: 20rpx;
 }
 
 .pcard-name {
   display: block;
   font-size: 30rpx;
-  font-weight: 600;
+  font-weight: 700;
   color: #262626;
 }
 
 .pcard-time {
   display: block;
   margin-top: 4rpx;
-  font-size: 22rpx;
-  color: #9AA09D;
+  font-size: 15rpx;
+  color: #747474;
 }
 
 .pcard-text {
   display: block;
   margin: 16rpx 0;
-  font-size: 28rpx;
+  font-size: 22rpx;
   color: #262626;
   line-height: 1.6;
 }
 
-/* #话题# 用主色高亮 */
+/* #话题# 用设计稿话题色高亮 */
 .topic {
-  color: #4E6F66;
+  color: #77BBAC;
 }
 
 .pcard-cover {
   display: block;
-  width: 100%;
-  border-radius: 16rpx;
+  width: 484rpx;
+  max-width: 100%;
+  border-radius: 14rpx;
   background: #F2F2F2;
 }
 
@@ -803,45 +814,61 @@ function openMore(item) {
   color: #4E6F66;
 }
 
+/* 操作行宽度与图片对齐（设计稿里 ⋮ 与图片右边缘基本齐平） */
 .pcard-actions {
   display: flex;
   align-items: center;
-  padding: 20rpx 0;
+  width: 484rpx;
+  max-width: 100%;
+  padding: 16rpx 0 20rpx;
 }
 
 .paction {
   display: flex;
   align-items: center;
-  margin-right: 48rpx;
+  margin-right: 38rpx;
 }
 
+/* 图标取自设计稿：赞 12px / 评论 14px / 分享 13px → 24 / 28 / 26rpx */
 .paction-icon {
-  font-size: 30rpx;
-  color: #4A4A4A;
+  display: block;
+  width: 24rpx;
+  height: 24rpx;
+}
+
+.paction-icon-comment {
+  width: 28rpx;
+  height: 28rpx;
+}
+
+.paction-icon-share {
+  width: 26rpx;
+  height: 26rpx;
 }
 
 .paction-text {
-  margin-left: 8rpx;
-  font-size: 26rpx;
-  color: #6B6F6D;
+  margin-left: 6rpx;
+  font-size: 19rpx;
+  color: #747474;
 }
 
 .paction-more {
   margin-left: auto;
-  padding: 0 8rpx;
+  padding: 0 4rpx;
 }
 
 .paction-more-icon {
-  font-size: 34rpx;
-  color: #6B6F6D;
+  display: block;
+  width: 24rpx;
+  height: 24rpx;
 }
 
 /* 加载更多 / 空态 */
 .loading-more {
   text-align: center;
   padding: 30rpx;
-  color: #C4C9C7;
-  font-size: 24rpx;
+  color: #747474;
+  font-size: 22rpx;
 }
 
 .list-empty {
@@ -850,8 +877,8 @@ function openMore(item) {
 }
 
 .empty-text {
-  font-size: 26rpx;
-  color: #B4B9B7;
+  font-size: 22rpx;
+  color: #747474;
 }
 </style>
 
