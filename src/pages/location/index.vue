@@ -7,7 +7,8 @@
       <!-- 顶部搜索输入框 -->
       <view class="search-section">
         <view class="search-input-wrapper">
-          <text class="search-icon">🔍</text>
+          <!-- 放大镜统一走 SearchIcon（= 首页右上角那枚），不再用 🔍 emoji -->
+          <SearchIcon :size="30" class="search-icon" />
           <input
             class="search-input"
             v-model="keyword"
@@ -88,6 +89,7 @@
 <script setup>
 import { ref } from 'vue'
 import CustomNavbar from '@/components/common/CustomNavbar.vue'
+import SearchIcon from '@/components/common/SearchIcon.vue'
 
 const keyword = ref('')
 const selectedLocation = ref('none')
@@ -120,6 +122,9 @@ function selectLocation(item) {
 }
 
 function confirmLocation() {
+  // 回传给来源页（如「发布动态」的位置行）：本页只负责选，展示由来源页决定。
+  // 用对象包装，这样「不显示位置」写空值也能和「没选过」区分开（getStorageSync 缺失时同样返回 ''）
+  uni.setStorageSync("picked_location", { name: selectedLocation.value === "none" ? "" : selectedLocation.value })
   uni.navigateBack()
 }
 </script>
@@ -153,7 +158,6 @@ function confirmLocation() {
 }
 
 .search-icon {
-  font-size: 28rpx;
   margin-right: 12rpx;
 }
 
