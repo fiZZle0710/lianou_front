@@ -3,10 +3,11 @@
        设计稿：tif/m_2.tif（推荐）、tif/m_3.tif（关注）；主色 #4E6F66 -->
   <view class="page">
     <CustomNavbar>
-      <!-- 左槽：写笔记入口（与底栏 + / 项目中心 + 共用同一份 CreateModal 菜单） -->
+      <!-- 左槽：写笔记入口（与底栏 + / 项目中心 + 共用同一份 CreateModal 菜单）
+           图标取自设计稿 pptm 的矢量原稿（image18.svg 及其兼容位图），42rpx = 设计值 21.1px -->
       <template #left>
         <view class="nav-icon-btn" @click="showCreateModal = true">
-          <text class="nav-icon">📝</text>
+          <image class="nav-icon-img nav-icon-note" src="/static/icon-note.png" mode="aspectFit" />
         </view>
       </template>
 
@@ -24,10 +25,10 @@
         </view>
       </view>
 
-      <!-- 右槽：搜索 -->
+      <!-- 右槽：搜索（同样取自设计稿 pptm 的矢量原稿 image16.svg），33rpx = 设计值 16.5px -->
       <template #right>
         <view class="nav-icon-btn" @click="goSearch">
-          <text class="nav-icon">🔍</text>
+          <image class="nav-icon-img nav-icon-search" src="/static/icon-search.png" mode="aspectFit" />
         </view>
       </template>
     </CustomNavbar>
@@ -491,9 +492,19 @@ function openMore(item) {
   justify-content: center;
 }
 
-.nav-icon {
-  font-size: 20px;
-  line-height: 1;
+/* 顶栏图标（设计稿 pptm 的矢量原稿，尺寸按设计值 ×2 换算为 rpx） */
+.nav-icon-img {
+  display: block;
+}
+
+.nav-icon-note {
+  width: 42rpx;
+  height: 42rpx;
+}
+
+.nav-icon-search {
+  width: 33rpx;
+  height: 33rpx;
 }
 
 /* 中间胶囊 Tab */
