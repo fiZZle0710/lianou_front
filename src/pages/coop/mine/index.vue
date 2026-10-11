@@ -22,7 +22,8 @@
 
     <!-- 搜索框（设计稿：360×56 / 圆角 28 / 白底 opacity 0.3 / 左侧放大镜 / gap 4px） -->
     <view class="search-bar">
-      <text class="search-icon">🔍</text>
+      <!-- 放大镜统一走 SearchIcon（= 首页右上角那枚），不再用 🔍 emoji -->
+      <SearchIcon :size="32" />
       <input
         class="search-input"
         v-model="keyword"
@@ -89,6 +90,7 @@
 import { ref, computed } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import DemoBadge from '@/components/common/DemoBadge.vue'
+import SearchIcon from '@/components/common/SearchIcon.vue'
 import nav from '@/utils/nav.js'
 import { getMyProjects } from '@/api/project.js'
 import { normalizeProject } from '@/api/adapter.js'
@@ -296,12 +298,6 @@ function goCreate() {
   gap: 8rpx;               /* 设计稿 gap: 4px */
   padding: 0 30rpx;        /* 左内边距 16px（设计稿未给，按 (56-24)/2 取） */
   box-sizing: border-box;
-}
-
-.search-icon {
-  font-size: 32rpx;
-  line-height: 1;
-  flex-shrink: 0;
 }
 
 .search-input {

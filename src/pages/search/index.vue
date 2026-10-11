@@ -4,7 +4,8 @@
     <!-- 顶部搜索栏 -->
     <view class="search-header">
       <view class="search-input-wrapper">
-        <text class="search-icon">🔍</text>
+        <!-- 放大镜统一走 SearchIcon（= 首页右上角那枚），不再用 🔍 emoji -->
+        <SearchIcon :size="32" class="search-icon" />
         <input
           class="search-input"
           v-model="keyword"
@@ -86,6 +87,7 @@
 import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import WorkCard from '@/components/common/WorkCard.vue'
+import SearchIcon from '@/components/common/SearchIcon.vue'
 
 const keyword = ref('')
 const searched = ref(false)
@@ -201,7 +203,6 @@ function goWorkDetail(e) {
 }
 
 .search-icon {
-  font-size: 16px;
   margin-right: 8px;
 }
 

@@ -8,7 +8,8 @@
           <text class="nav-btn-text">{{ isSelectMode ? '取消' : '选择' }}</text>
         </view>
         <view class="nav-btn" @click="search">
-          <text class="search-icon">🔍</text>
+          <!-- 放大镜统一走 SearchIcon（= 首页右上角那枚），不再用 🔍 emoji -->
+          <SearchIcon />
         </view>
       </template>
     </CustomNavbar>
@@ -98,6 +99,7 @@
 import { ref, computed } from 'vue'
 import CustomNavbar from '@/components/common/CustomNavbar.vue'
 import ConfirmModal from '@/components/common/ConfirmModal.vue'
+import SearchIcon from '@/components/common/SearchIcon.vue'
 
 const tabs = [
   { key: 'user', label: '用户' },
@@ -198,10 +200,6 @@ function batchFav() {
 .nav-btn-text {
   font-size: 14px;
   color: #007aff;
-}
-
-.search-icon {
-  font-size: 20px;
 }
 
 /* Tab切换 */

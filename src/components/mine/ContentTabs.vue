@@ -28,8 +28,9 @@
           />
           <text class="search-close" @click="closeSearch">✕</text>
         </view>
+        <!-- 放大镜统一走 SearchIcon（= 首页右上角那枚），不再用 🔍 emoji；34rpx ≈ 原来的 20px 字号占位 -->
         <view v-else class="search-icon" @click="openSearch">
-          <text class="search-icon-text">🔍</text>
+          <SearchIcon :size="34" />
         </view>
       </view>
     </view>
@@ -184,6 +185,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import WorkCard from '@/components/common/WorkCard.vue'
+import SearchIcon from '@/components/common/SearchIcon.vue'
 
 const props = defineProps({
   publishStatus: {
@@ -337,10 +339,6 @@ function shareTo(e) {
 
 .search-icon {
   padding: 0 8px;
-}
-
-.search-icon-text {
-  font-size: 20px;
 }
 
 .search-input-box {

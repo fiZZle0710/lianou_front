@@ -9,7 +9,10 @@
         </view>
         <text class="nav-title">我的消息</text>
         <view class="nav-right">
-          <text class="nav-icon" @click="onSearch">🔍</text>
+          <!-- 放大镜统一走 SearchIcon（= 首页右上角那枚），不再用 🔍 emoji -->
+          <view class="nav-icon-btn" @click="onSearch">
+            <SearchIcon />
+          </view>
           <text class="nav-icon" @click="onClean">🧹</text>
         </view>
       </view>
@@ -88,6 +91,7 @@ import { onShow } from "@dcloudio/uni-app"
 import MessageListItem from "@/components/message/MessageListItem.vue"
 import CustomTabbar from "@/components/common/CustomTabbar.vue"
 import DemoBadge from "@/components/common/DemoBadge.vue"
+import SearchIcon from "@/components/common/SearchIcon.vue"
 import nav from '@/utils/nav.js'
 import {
   getConversations,
@@ -292,6 +296,8 @@ async function onClean() {
 .nav-left { width: 80rpx; height: 60rpx; display: flex; align-items: center; }
 .nav-right { width: 110rpx; display: flex; justify-content: space-between; }
 .nav-icon { font-size: 36rpx; }
+/* 搜索图标的点按区（图标本身由 SearchIcon 统一给尺寸） */
+.nav-icon-btn { width: 44rpx; height: 60rpx; display: flex; align-items: center; justify-content: center; }
 .nav-title { font-size: 34rpx; font-weight: 700; color: #333; }
 
 /* 功能卡片 */
