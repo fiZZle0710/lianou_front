@@ -121,6 +121,13 @@ if ($plain -match '未检测到已打开的HBuilderX') {
   exit 1
 }
 
+# DCloud 账号未登录时 cli 同样只打印 "user not login"，也不会提交任务（2026-10-20 实测）
+if ($plain -match 'user not login') {
+  Write-Host "`n== 打包没有提交：HBuilderX 未登录 DCloud 账号 ==" -ForegroundColor Red
+  Write-Host '  在 HBuilderX 右上角登录 DCloud 账号（并确认已绑定手机号）后重试' -ForegroundColor Yellow
+  exit 1
+}
+
 Write-Host "`n== 打包任务已提交 ==" -ForegroundColor Green
 Write-Host "  等 2-5 分钟，用 `npm run pack:app -- -Status` 查进度；HBuilderX 界面也会弹出下载提示"
 

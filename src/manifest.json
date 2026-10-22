@@ -2,8 +2,8 @@
     "name" : "莲藕",
     "appid" : "__UNI__F1A3968",
     "description" : "莲藕 · 创作者社交分享平台",
-    "versionName" : "1.0.0",
-    "versionCode" : "100",
+    "versionName" : "1.0.1",
+    "versionCode" : "101",
     "transformPx" : false,
     /* 5+App特有相关 */
     "app-plus" : {

@@ -1,50 +1,60 @@
 <template>
-  <!-- 我的消息（一级页） -->
+  <!-- 我的消息（一级页）—— 视觉对齐 tif/消息.tif -->
   <view class="page">
     <view class="page-inner">
-      <!-- 顶部导航：客服 + 标题 + 搜索/清理 -->
+      <!-- 顶部导航：客服 + 标题 + 清理/搜索 -->
       <view class="nav">
-        <view class="nav-left" @click="goService">
-          <text class="nav-icon">🎧</text>
+        <view class="nav-side" @click="goService">
+          <image class="nav-icon" src="/static/icons/icon-headset.svg" mode="aspectFit" />
         </view>
         <text class="nav-title">我的消息</text>
-        <view class="nav-right">
-          <!-- 放大镜统一走 SearchIcon（= 首页右上角那枚），不再用 🔍 emoji -->
-          <view class="nav-icon-btn" @click="onSearch">
-            <SearchIcon />
+        <view class="nav-side right">
+          <view class="nav-btn" @click="onClean">
+            <image class="nav-icon" src="/static/icons/icon-broom.svg" mode="aspectFit" />
           </view>
-          <text class="nav-icon" @click="onClean">🧹</text>
+          <view class="nav-btn" @click="onSearch">
+            <image class="nav-icon" src="/static/icons/icon-search-line.svg" mode="aspectFit" />
+          </view>
         </view>
       </view>
 
-      <DemoBadge :show="isDemo" />
+      <!-- 演示数据灰标：接口回退到 mock 时显示（放三宫格上方右侧，避免压住图标） -->
+      <view v-if="isDemo" class="demo-row">
+        <DemoBadge :show="isDemo" position="inline" />
+      </view>
 
-      <!-- 顶部三个功能卡片 -->
+      <!-- 顶部三个功能入口（稿上为深绿圆角方块 + 白色线性图标） -->
       <view class="func-cards">
         <view class="func-card" @click="goOfficial">
-          <view class="func-icon-wrap">
-            <text class="func-icon">📣</text>
-            <view v-if="unread.official > 0" class="badge red"><text class="badge-text">{{ badgeText(unread.official) }}</text></view>
+          <view class="func-tile">
+            <image class="tile-icon" src="/static/icons/icon-tile-official.svg" mode="aspectFit" />
+            <view v-if="unread.official > 0" class="tile-badge">
+              <text class="tile-badge-t">{{ badgeText(unread.official) }}</text>
+            </view>
           </view>
           <text class="func-label">官方消息</text>
         </view>
         <view class="func-card" @click="goInteractive">
-          <view class="func-icon-wrap">
-            <text class="func-icon">💗</text>
-            <view v-if="unread.interaction > 0" class="badge red"><text class="badge-text">{{ badgeText(unread.interaction) }}</text></view>
+          <view class="func-tile">
+            <image class="tile-icon" src="/static/icons/icon-tile-interact.svg" mode="aspectFit" />
+            <view v-if="unread.interaction > 0" class="tile-badge">
+              <text class="tile-badge-t">{{ badgeText(unread.interaction) }}</text>
+            </view>
           </view>
           <text class="func-label">互动消息</text>
         </view>
         <view class="func-card" @click="goTodo">
-          <view class="func-icon-wrap">
-            <text class="func-icon">📋</text>
-            <view v-if="unread.todo > 0" class="badge red"><text class="badge-text">{{ badgeText(unread.todo) }}</text></view>
+          <view class="func-tile">
+            <image class="tile-icon" src="/static/icons/icon-tile-todo.svg" mode="aspectFit" />
+            <view v-if="unread.todo > 0" class="tile-badge">
+              <text class="tile-badge-t">{{ badgeText(unread.todo) }}</text>
+            </view>
           </view>
           <text class="func-label">待办事项</text>
         </view>
       </view>
 
-      <!-- Tab 切换：联系人 / 群聊 -->
+      <!-- 联系人 / 群聊 -->
       <view class="tabs">
         <view class="tab-item" :class="{ active: activeTab === 'contact' }" @click="switchTab('contact')">
           <text class="tab-text">联系人</text>
@@ -52,8 +62,8 @@
         <view class="tab-item" :class="{ active: activeTab === 'group' }" @click="switchTab('group')">
           <text class="tab-text">群聊</text>
         </view>
-        <view class="tab-line" :class="activeTab === 'group' ? 'right' : 'left'"></view>
       </view>
+
       <!-- 会话列表 -->
       <scroll-view
         scroll-y
@@ -72,6 +82,7 @@
           :unread="item.unread"
           :level="item.level"
           :avatar="item.avatar"
+          :muted="item.muted"
           @click="goChat(item)"
         />
         <view class="list-empty" v-if="currentList.length === 0">
@@ -83,7 +94,7 @@
       </scroll-view>
     </view>
   </view>
-<CustomTabbar />
+  <CustomTabbar />
 </template>
 <script setup>
 import { ref, computed } from "vue"
@@ -91,7 +102,6 @@ import { onShow } from "@dcloudio/uni-app"
 import MessageListItem from "@/components/message/MessageListItem.vue"
 import CustomTabbar from "@/components/common/CustomTabbar.vue"
 import DemoBadge from "@/components/common/DemoBadge.vue"
-import SearchIcon from "@/components/common/SearchIcon.vue"
 import nav from '@/utils/nav.js'
 import {
   getConversations,
@@ -138,10 +148,11 @@ function toContactItem(raw) {
     userId: c.userId,
     nickname: c.name || '用户',
     level: c.contact ? c.contact.level : 0,
-    preview: c.lastMessage || '',
+    preview: c.lastMessage || '暂无消息',
     time: c.time || '',
     unread: c.unreadCount || 0,
-    avatar: c.avatar || ''
+    avatar: c.avatar || '',
+    muted: !!c.muted
   }
 }
 
@@ -153,10 +164,11 @@ function toGroupItem(raw) {
     type: 'group',
     nickname: g.name || '群聊',
     level: 0,
-    preview: g.lastMessage || '',
+    preview: g.lastMessage || '暂无消息',
     time: g.time || '',
     unread: g.unreadCount || 0,
-    avatar: g.avatar || ''
+    avatar: g.avatar || '',
+    muted: !!g.muted
   }
 }
 
@@ -276,7 +288,7 @@ function goTodo() { uni.navigateTo({ url: "/pages/message/interactive?tab=todo" 
 
 function onSearch() { uni.navigateTo({ url: "/pages/search/index?type=user" }) }
 
-/** 🧹 一键已读：9.5 批量已读（不传 type = 全部） */
+/** 一键已读：9.5 批量已读（不传 type = 全部） */
 async function onClean() {
   try {
     await readAllNotifications()
@@ -288,36 +300,78 @@ async function onClean() {
 }
 </script>
 <style scoped>
-.page { background: #f5f6fa; min-height: 100vh; }
+.page { background: #fff; min-height: 100vh; }
 .page-inner { display: flex; flex-direction: column; height: 100vh; }
 
 /* 导航 */
-.nav { display: flex; align-items: center; justify-content: space-between; padding: 20rpx 24rpx; padding-top: calc(env(safe-area-inset-top) + 20rpx); background: #fff; }
-.nav-left { width: 80rpx; height: 60rpx; display: flex; align-items: center; }
-.nav-right { width: 110rpx; display: flex; justify-content: space-between; }
-.nav-icon { font-size: 36rpx; }
-/* 搜索图标的点按区（图标本身由 SearchIcon 统一给尺寸） */
-.nav-icon-btn { width: 44rpx; height: 60rpx; display: flex; align-items: center; justify-content: center; }
-.nav-title { font-size: 34rpx; font-weight: 700; color: #333; }
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12rpx 28rpx;
+  padding-top: calc(env(safe-area-inset-top) + 12rpx);
+  background: #fff;
+}
+.nav-side { width: 80rpx; height: 64rpx; display: flex; align-items: center; }
+.nav-side.right { width: auto; justify-content: flex-end; }
+.nav-btn { width: 64rpx; height: 64rpx; display: flex; align-items: center; justify-content: center; margin-left: 8rpx; }
+.nav-icon { width: 44rpx; height: 44rpx; }
+.nav-title {
+  font-size: 32rpx;
+  color: #1f1f1f;
+  font-weight: 700;
+  font-family: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", serif;
+}
 
-/* 功能卡片 */
-.func-cards { display: flex; justify-content: space-between; padding: 24rpx; background: #fff; }
-.func-card { width: 30%; background: #f7f8fa; border-radius: 20rpx; padding: 30rpx 0; display: flex; flex-direction: column; align-items: center; }
-.func-card:active { transform: scale(0.96); background: #f0f1f4; }
-.func-icon-wrap { position: relative; width: 96rpx; height: 96rpx; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-.func-icon { font-size: 48rpx; }
-.badge { position: absolute; top: -8rpx; right: -16rpx; min-width: 44rpx; height: 32rpx; border-radius: 16rpx; display: flex; align-items: center; justify-content: center; padding: 0 8rpx; }
-.badge.red { background: #ff5b5b; }
-.badge-text { font-size: 20rpx; color: #fff; }
-.func-label { margin-top: 16rpx; font-size: 26rpx; color: #333; }
+/* 三个功能入口 */
+.demo-row { display: flex; justify-content: flex-end; padding: 8rpx 28rpx 0; }
+.func-cards { display: flex; justify-content: space-between; padding: 8rpx 130rpx 0; }
+.func-card { display: flex; flex-direction: column; align-items: center; }
+.func-tile {
+  position: relative;
+  width: 102rpx;
+  height: 102rpx;
+  border-radius: 24rpx;
+  background: #4e6f66;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.func-card:active .func-tile { opacity: .9; }
+.tile-icon { width: 56rpx; height: 56rpx; }
+.tile-badge {
+  position: absolute;
+  top: -14rpx;
+  right: -10rpx;
+  min-width: 38rpx;
+  height: 38rpx;
+  border-radius: 19rpx;
+  padding: 0 6rpx;
+  background: #df4c41;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3rpx solid #fff;
+  box-sizing: border-box;
+}
+.tile-badge-t { font-size: 18rpx; color: #fff; }
+.func-label { margin-top: 16rpx; font-size: 24rpx; color: #3f3f3f; }
 
-/* Tab */
-.tabs { display: flex; position: relative; background: #fff; border-bottom: 1rpx solid #f0f0f0; }
-.tab-item { flex: 1; text-align: center; padding: 24rpx 0; }
-.tab-text { font-size: 30rpx; color: #666; }
-.tab-item.active .tab-text { color: #d98983; font-weight: 600; }
-.tab-line { position: absolute; bottom: 0; width: 40%; left: 5%; height: 6rpx; border-radius: 3rpx; background: #d98983; transition: left .25s; }
-.tab-line.right { left: 55%; }
+/* 联系人 / 群聊 */
+.tabs {
+  display: flex;
+  align-items: flex-end;
+  padding: 26rpx 28rpx 14rpx;
+  margin-top: 20rpx;
+  border-bottom: 1rpx solid #ededed;
+}
+.tab-item { margin-right: 32rpx; }
+.tab-text {
+  font-size: 34rpx;
+  color: #a0a0a0;
+  font-family: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", serif;
+}
+.tab-item.active .tab-text { color: #1f1f1f; font-weight: 700; }
 
 /* 列表 */
 .list-scroll { flex: 1; overflow: hidden; }

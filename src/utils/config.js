@@ -105,6 +105,15 @@ export const TEST_ACCOUNTS = [
  */
 export const MOCK_LOGIN_ENABLED = false
 
+/**
+ * 👉 无后端演示包总开关（打「纯 UI 测试 APK」时用）
+ * true ：启动即写入演示登录态（App.vue onLaunch），所有读接口失败后回退 src/mock，
+ *        不依赖后端、也不依赖手机与电脑同网；页面上会显示「演示数据」灰标
+ * false：正常联调/正式包，登录与数据全部走真实接口
+ * 打带后端的包之前，把这个改回 false 再 build。
+ */
+export const DEMO_MODE = true
+
 // 注册页固定测试验证码（联调过渡用；后端 dev_code 可用后应走 sendCode 返回的真实码）
 export const TEST_SMS_CODE = '123456'
 

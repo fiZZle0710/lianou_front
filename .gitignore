@@ -47,3 +47,6 @@ certs
 
 # 校验脚本临时产物
 .tmp-bundle.js
+# 本地截图/拟合脚本产物（CDP 截图、渐变拟合）
+/.run/
+/.tmp-tools/

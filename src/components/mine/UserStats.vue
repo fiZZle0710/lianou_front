@@ -32,7 +32,8 @@ function handleClick(item) {
   margin: 26rpx 41rpx 0; /* 设计稿：左右各 22px */
   height: 196rpx; /* 设计稿：105px */
   border-radius: 30rpx; /* 设计稿：16px */
-  background: rgba(26, 32, 29, 0.82);
+  /* 左（白底）版实测：#6B746F；用 30,38,34 @0.66 叠在白底上得到同一观感 */
+  background: rgba(30, 38, 34, 0.66);
 }
 
 .item {

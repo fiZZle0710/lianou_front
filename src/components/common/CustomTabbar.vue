@@ -5,8 +5,8 @@
       :class="{ active: currentPage === 'square' }"
       @click="goPage('/pages/square/index', 'square')"
     >
-      <text>🏠</text>
-      <text>广场</text>
+      <image class="tab-icon" :src="iconSrc('square', currentPage === 'square')" mode="aspectFit" />
+      <text class="tab-label">广场</text>
     </view>
 
     <view
@@ -14,8 +14,8 @@
       :class="{ active: currentPage === 'project' }"
       @click="goPage('/pages/project/index', 'project')"
     >
-      <text>📋</text>
-      <text>项目</text>
+      <image class="tab-icon" :src="iconSrc('project', currentPage === 'project')" mode="aspectFit" />
+      <text class="tab-label">项目</text>
     </view>
 
     <!-- 中间创作加号按钮 -->
@@ -28,8 +28,8 @@
       :class="{ active: currentPage === 'message' }"
       @click="goPage('/pages/message/index', 'message')"
     >
-      <text>💬</text>
-      <text>消息</text>
+      <image class="tab-icon" :src="iconSrc('message', currentPage === 'message')" mode="aspectFit" />
+      <text class="tab-label">消息</text>
     </view>
 
     <view
@@ -37,8 +37,8 @@
       :class="{ active: currentPage === 'mine' }"
       @click="goPage('/pages/mine/index', 'mine')"
     >
-      <text>👤</text>
-      <text>我的</text>
+      <image class="tab-icon" :src="iconSrc('mine', currentPage === 'mine')" mode="aspectFit" />
+      <text class="tab-label">我的</text>
     </view>
   </view>
 
@@ -58,6 +58,15 @@ import nav from '@/utils/nav.js'
 const showTabbar = ref(true)
 const currentPage = ref('')
 const showCreateModal = ref(false)
+
+/**
+ * 底栏图标：从标识库 Figma 的 Footer 组件导出的原始矢量路径，
+ * 已生成 8 个 SVG（未选中灰 #808080 / 选中绿 #34D399）放在 src/static/tabbar/。
+ * 四枚图标统一 24×24 画布、按设计原比例居中，任意 DPI 都清晰。
+ */
+function iconSrc(key, active) {
+  return `/static/tabbar/${key}${active ? '-on' : ''}.svg`
+}
 
 onMounted(() => {
   const pages = getCurrentPages()
@@ -104,25 +113,30 @@ function handleCreateSelect(key) {
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-size: 20rpx;
-  color: #999;
+  color: #747474;
   gap: 4rpx;
 }
 
 .tab-item.active {
-  color: #333;
-  font-weight: 600;
+  /* 选中态颜色同步到图标与文字 */
+  color: #34d399;
 }
 
-.tab-item text:first-child {
-  font-size: 40rpx;
+.tab-icon {
+  width: 44rpx; /* 24px，四枚图标统一画布，完整显示不裁切 */
+  height: 44rpx;
+}
+
+.tab-label {
+  font-size: 20rpx;
+  line-height: 1.2;
 }
 
 .add {
   width: 100rpx;
   height: 100rpx;
   border-radius: 50%;
-  background: #333;
+  background: #1da775; /* 标识库：中间加号为薄荷绿 */
   color: white;
   font-size: 50rpx;
   display: flex;

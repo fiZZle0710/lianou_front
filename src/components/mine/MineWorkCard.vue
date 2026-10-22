@@ -80,7 +80,7 @@ function onError() {
 
 <style scoped>
 .mcard {
-  background: #2b2b2b; /* 设计稿：卡片信息区为深色 */
+  background: #1d2923; /* 左（白底）版实测：卡片信息区是深绿近黑 */
   border-radius: 22rpx;
   overflow: hidden;
 }

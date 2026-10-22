@@ -5,11 +5,11 @@
   -->
   <view class="user-header">
     <!--
-      封面：设计稿用的是一张柳枝工笔画。原图没随稿给出（Figma 匿名访问导不出素材），
-      先拿仓库里同色系的 mine-grid-bg.png 占位；换成原图只需改下面这一行。
+      封面：设计稿里是一张示例背景图，先按老师要求留白（不加图 = 透出页面白底）。
+      以后要换背景：把 userInfo.cover 设成图片地址即可，标题/头像等位置不用动。
     -->
-    <image class="cover" src="/static/mine-grid-bg.png" mode="aspectFill" />
-    <view class="cover-fade"></view>
+    <image v-if="userInfo.cover" class="cover" :src="userInfo.cover" mode="aspectFill" />
+    <view v-if="userInfo.cover" class="cover-fade"></view>
 
     <view class="profile">
       <view class="avatar-wrap" @click="openProfile">
@@ -44,6 +44,8 @@ const userInfo = ref({
   avatar: '',
   // 头像框素材；后端给每个用户的框 ID 后，这里换成对应的 URL
   avatarFrame: '/static/avatar-frame/default.png',
+  // 封面背景图：先留白；以后设为 '/static/xxx.png' 即可换上
+  cover: '',
   nickname: '冯大侠',
   id: '1234567',
   badge: '活动款',

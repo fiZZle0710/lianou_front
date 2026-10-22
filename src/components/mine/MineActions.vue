@@ -53,7 +53,8 @@ function goGroup() {
   justify-content: center;
   height: 92rpx; /* 设计稿：约 49px */
   border-radius: 24rpx;
-  background: rgba(26, 32, 29, 0.82);
+  /* 左（白底）版实测：#464E49（比数据卡更深一档） */
+  background: rgba(20, 26, 23, 0.79);
 }
 
 .action + .action {
