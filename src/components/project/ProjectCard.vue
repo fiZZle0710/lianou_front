@@ -103,7 +103,8 @@ const skillText = computed(() => {
   border-radius: 30rpx;
   padding: 22rpx 22rpx 26rpx;
   margin-bottom: 22rpx;
-  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.06);
+  /* 四边都要有阴影（原来只有 y 偏移，右侧几乎看不出，用户反馈补上） */
+  box-shadow: 0 0 20rpx rgba(0, 0, 0, 0.07), 0 8rpx 22rpx rgba(0, 0, 0, 0.05);
 }
 .proj-card:active { opacity: .94; }
 

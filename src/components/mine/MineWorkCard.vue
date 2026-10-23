@@ -94,7 +94,8 @@ function onError() {
 .mcard-img {
   display: block;
   width: 100%;
-  height: 560rpx; /* 设计稿卡片图约 150x280（图:文 ≈ 70:30） */
+  /* 设计稿卡片约 150x280（图:文 ≈ 70:30），原来 560rpx 太高，用户反馈「卡片太长」 */
+  height: 380rpx;
 }
 
 /* 精选：红色胶囊角标 */

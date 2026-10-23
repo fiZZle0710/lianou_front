@@ -345,7 +345,7 @@ function goManage() { uni.navigateTo({ url: "/pages/project/manage" }) }
 function goSearch() { uni.navigateTo({ url: "/pages/search/index" }) }
 </script>
 <style scoped>
-.page { background: #fff; height: 100vh; display: flex; flex-direction: column; }
+.page { --page-gutter: 32rpx; background: #fff; height: 100vh; display: flex; flex-direction: column; }
 
 /* 导航 */
 .nav {
@@ -367,7 +367,7 @@ function goSearch() { uni.navigateTo({ url: "/pages/search/index" }) }
 }
 
 /* 分类胶囊 */
-.filter-bar { display: flex; align-items: center; padding: 16rpx 0 12rpx 56rpx; background: #fff; }
+.filter-bar { display: flex; align-items: center; padding: 16rpx 0 12rpx var(--page-gutter); background: #fff; }
 .demo-row { display: flex; justify-content: flex-end; padding: 0 28rpx; }
 .pill-scroll { flex: 1; white-space: nowrap; overflow: hidden; }
 .pill-wrap { display: inline-flex; align-items: center; }
@@ -379,7 +379,7 @@ function goSearch() { uni.navigateTo({ url: "/pages/search/index" }) }
 .funnel-icon { width: 34rpx; height: 34rpx; }
 
 /* 列表 */
-.list-scroll { flex: 1; padding: 8rpx 56rpx 24rpx; box-sizing: border-box; overflow: hidden; }
+.list-scroll { flex: 1; padding: 8rpx var(--page-gutter) 24rpx; box-sizing: border-box; overflow: hidden; }
 .list-empty { text-align: center; padding: 80rpx 20rpx; }
 .empty-text { font-size: 26rpx; color: #bbb; }
 

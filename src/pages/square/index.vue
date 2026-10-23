@@ -139,8 +139,8 @@
                   >{{ seg.text }}</text>
                 </text>
 
-                <!-- 大图 -->
-                <SafeImage v-if="item.images.length" class="pcard-cover" :src="item.images[0]" mode="widthFix" />
+                <!-- 大图：设计稿里每条动态都占一块图（无图时用 SafeImage 的占位图），不能因为没图就塌掉 -->
+                <SafeImage class="pcard-cover" :src="(item.images && item.images[0]) || ''" mode="widthFix" />
 
                 <!-- 关联共创项目轻量入口（设计稿无此项，但后端作品带 project_id，保留可点） -->
                 <view v-if="item.projectId" class="pcard-coop" @click.stop="goProject(item)">
@@ -488,6 +488,8 @@ function openMore(item) {
    老师要求先统一用白色，暂时不引这张贴图；卡片白、正文 #262626。
    注意：底色转白后卡片的白色底不再与页面底色区分，边界只由照片圆角表达。 */
 .page {
+  /* 页边距：稿上是 27.8px，用户反馈偏大，统一收到 32rpx（≈17px），改这一处即可整体调 */
+  --page-gutter: 32rpx;
   background: #FFFFFF;
   height: 100vh;
   display: flex;
@@ -554,7 +556,7 @@ function openMore(item) {
 .waterfall {
   display: flex;
   gap: 14rpx;
-  padding: 18rpx 56rpx 180rpx;
+  padding: 18rpx var(--page-gutter) 180rpx;
 }
 
 .waterfall-col {
@@ -630,7 +632,7 @@ function openMore(item) {
 .follow-row {
   display: inline-flex;
   align-items: flex-start;
-  padding: 0 56rpx;
+  padding: 0 var(--page-gutter);
 }
 
 .follow-cell {
@@ -706,7 +708,7 @@ function openMore(item) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 24rpx 56rpx 20rpx;
+  padding: 24rpx var(--page-gutter) 20rpx;
   background: #FFFFFF;
   border-top: 1rpx solid #E8EAE9;
 }
@@ -746,7 +748,7 @@ function openMore(item) {
 }
 
 .pcard {
-  padding: 24rpx 56rpx 8rpx;
+  padding: 24rpx var(--page-gutter) 8rpx;
   border-bottom: 1rpx solid #EEF0EF;
 }
 
@@ -791,7 +793,7 @@ function openMore(item) {
 
 .pcard-cover {
   display: block;
-  width: 484rpx;
+  width: 100%;
   max-width: 100%;
   border-radius: 14rpx;
   background: #F2F2F2;
