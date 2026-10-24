@@ -39,6 +39,7 @@
     { "path": "pages/coop/mine/index" },
     { "path": "pages/coop/edit/index" },
     { "path": "pages/album/index" },
+    { "path": "pages/preview/image" },
     { "path": "pages/dev/check" }
   ],
   "globalStyle": {

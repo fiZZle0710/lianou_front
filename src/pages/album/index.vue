@@ -165,7 +165,7 @@ function goNext() {
     return { id: p.id, src: p.src, gradient: "", label: "" }
   })
   setSelectedImages(items)
-  uni.navigateTo({ url: "/pages/publish/image" })
+  uni.navigateTo({ url: "/pages/preview/image" })
 }
 function close() {
   uni.navigateBack()
