@@ -1,305 +1,169 @@
 <template>
-  <!-- 共创招募编辑页面 -->
+  <!-- 发起项目招募（按 Figma node-id=62-61 设计稿重做） -->
   <view class="page">
-    <CustomNavbar title="发起共创" showBack />
+    <CustomNavbar title="" showBack />
+    <view class="nav-divider"></view>
 
-    <scroll-view scroll-y class="edit-scroll">
-      <!-- 图片上传区域 -->
-      <view class="upload-section">
-        <view class="upload-grid">
-          <view
-            v-for="(img, index) in images"
-            :key="index"
-            class="upload-item"
-          >
-            <image :src="img" mode="aspectFill" class="upload-img" />
-            <text class="remove-img" @click="removeImage(index)">✕</text>
-          </view>
-          <view v-if="images.length < 9" class="upload-add" @click="addImage">
-            <text class="add-icon">+</text>
-            <text class="add-text">{{ images.length }}/9</text>
-          </view>
+    <scroll-view scroll-y class="form-scroll">
+      <!-- 发起人信息卡 -->
+      <view class="intro-card">
+        <view class="ic-avatar">
+          <text class="ic-avatar-t">{{ avatarLetter }}</text>
         </view>
+        <view class="ic-main">
+          <text class="ic-name">{{ nickname }}</text>
+          <view class="ic-line"></view>
+        </view>
+        <text class="ic-title">发起的项目招募</text>
       </view>
 
-      <!-- 输入区域 -->
-      <view class="input-section">
+      <!-- 项目名称 -->
+      <text class="f-label lbl-first">项目名称</text>
+      <view class="f-input-wrap">
         <input
-          class="title-input"
-          v-model="topic"
+          class="f-input"
+          v-model="title"
           type="text"
-          placeholder="添加共创主题"
+          placeholder=""
           maxlength="50"
         />
+      </view>
+
+      <!-- 简介 -->
+      <text class="f-label lbl-intro">简介</text>
+      <view class="f-textarea-wrap">
+        <view class="intro-rule"></view>
         <textarea
-          class="body-input"
+          class="f-textarea"
           v-model="intro"
-          placeholder="添加简介..."
+          placeholder=""
           maxlength="500"
         />
       </view>
 
-      <!-- 功能选项 -->
-      <view class="options-section">
-        <view class="option-row" @click="addTopic">
-          <view class="option-left">
-            <text class="option-icon">#</text>
-            <text class="option-label">添加话题</text>
-          </view>
-          <view class="option-right">
-            <text class="option-hint">{{ topicTag || '添加话题' }}</text>
-            <text class="option-arrow">›</text>
-          </view>
+      <!-- 招募技能 -->
+      <text class="f-label lbl-skill">招募技能</text>
+      <view class="chip-row">
+        <view
+          v-for="s in selectedSkills"
+          :key="s.id"
+          class="chip"
+          @click="toggleSkill(s.id)"
+        >
+          <text class="chip-t">{{ s.name }}</text>
+        </view>
+        <view class="chip chip-add" @click="openSkillPicker">
+          <text class="chip-add-t">＋</text>
         </view>
       </view>
 
-      <!-- 高级设置入口 -->
-      <view class="advanced-section" @click="showAdvanced = true">
-        <view class="option-row">
-          <view class="option-left">
-            <text class="option-icon">⚙️</text>
-            <text class="option-label">高级设置</text>
-          </view>
-          <view class="option-right">
-            <text class="option-hint">{{ privacyLabel }}</text>
-            <text class="option-arrow">›</text>
-          </view>
+      <!-- 招募人数 -->
+      <text class="f-label lbl-mem">招募人数</text>
+      <view class="stepper">
+        <view class="step-btn" @click="stepMembers(-1)">
+          <text class="step-btn-t">−</text>
+        </view>
+        <text class="step-val">{{ members }}</text>
+        <view class="step-btn" @click="stepMembers(1)">
+          <text class="step-btn-t">＋</text>
         </view>
       </view>
+
+      <!-- 截止日期 -->
+      <text class="f-label lbl-date">截止日期</text>
+      <picker mode="date" :value="deadlineDate" @change="onDateChange">
+        <view class="date-row">
+          <image class="date-icon" src="/static/icons/icon-calendar.svg" mode="aspectFit" />
+          <text class="date-y">{{ dateParts.year }}</text>
+          <text class="date-m">{{ dateParts.month }}</text>
+          <text class="date-d">{{ dateParts.day }}</text>
+        </view>
+      </picker>
+
+      <view class="form-tail"></view>
     </scroll-view>
 
-    <!-- 底部栏 -->
-    <view class="bottom-bar">
-      <view class="bar-left">
-        <view class="bar-btn" @click="atSomeone">
-          <text class="bar-btn-icon">@</text>
-          <text class="bar-btn-label">提到</text>
-        </view>
-        <view class="bar-btn" @click="previewCoop">
-          <text class="bar-btn-icon">👁</text>
-          <text class="bar-btn-label">预览</text>
-        </view>
+    <!-- 底部发布 -->
+    <view class="cta-bar">
+      <view class="cta-btn" :class="{ disabled: submitting }" @click="publish">
+        <text class="cta-t">发布</text>
+        <image class="cta-arrow" src="/static/icons/icon-cta-arrow.svg" mode="aspectFit" />
       </view>
-      <view class="publish-btn" @click="publishCoop">发布招募</view>
     </view>
 
-    <!-- 高级设置弹窗 -->
-    <view v-if="showAdvanced" class="modal-mask" @click="showAdvanced = false">
-      <view class="advanced-sheet" @click.stop>
-        <view class="sheet-handle">
-          <view class="handle-bar"></view>
+    <!-- 技能选择弹层 -->
+    <view v-if="pickerOpen" class="picker-mask" @click="pickerOpen = false">
+      <view class="picker-sheet" @click.stop>
+        <view class="picker-head">
+          <text class="picker-title">选择招募技能（最多 {{ MAX_SKILLS }} 个）</text>
+          <text class="picker-done" @click="pickerOpen = false">完成</text>
         </view>
-        <view class="sheet-title">共创高级设置</view>
-
-        <view class="sheet-body">
-          <!-- 隐私权限 -->
-          <view class="setting-group">
-            <text class="setting-label">隐私权限</text>
-            <view class="radio-list">
-              <view
-                v-for="opt in privacyOpts"
-                :key="opt.key"
-                class="radio-item"
-                :class="{ selected: privacy === opt.key }"
-                @click="privacy = opt.key"
-              >
-                <text class="radio-text">{{ opt.label }}</text>
-                <view class="radio-box">
-                  <view v-if="privacy === opt.key" class="radio-dot"></view>
-                </view>
-              </view>
+        <scroll-view scroll-y class="picker-body">
+          <view class="picker-grid">
+            <view
+              v-for="s in skillOptions"
+              :key="s.id"
+              class="picker-opt"
+              :class="{ on: isSkillOn(s.id) }"
+              @click="toggleSkill(s.id)"
+            >
+              <text class="picker-opt-t">{{ s.name }}</text>
             </view>
           </view>
-
-          <!-- 定时发布 -->
-          <view class="setting-group">
-            <text class="setting-label">定时发布</text>
-            <view class="setting-row">
-              <picker mode="date" :value="scheduleDate" @change="onDateChange">
-                <view class="picker-btn">
-                  <text>{{ scheduleDate || '选择日期' }}</text>
-                  <text class="picker-arrow">›</text>
-                </view>
-              </picker>
-              <picker mode="time" :value="scheduleTime" @change="onTimeChange">
-                <view class="picker-btn">
-                  <text>{{ scheduleTime || '选择时间' }}</text>
-                  <text class="picker-arrow">›</text>
-                </view>
-              </picker>
-            </view>
-          </view>
-
-          <!-- 招募人数 -->
-          <view class="setting-group">
-            <text class="setting-label">共创招募人数</text>
-            <view class="number-input-row">
-              <view class="number-btn" data-action="decrement" data-target="recruitCount" @click="onNumberBtn">−</view>
-              <input
-                class="number-input"
-                v-model.number="recruitCount"
-                type="number"
-                maxlength="3"
-              />
-              <view class="number-btn" data-action="increment" data-target="recruitCount" @click="onNumberBtn">+</view>
-            </view>
-          </view>
-
-          <!-- 报酬（5.1 mode / budget） -->
-          <view class="setting-group">
-            <text class="setting-label">共创报酬</text>
-            <view class="radio-list">
-              <view
-                class="radio-item"
-                :class="{ selected: payMode === 'free' }"
-                @click="payMode = 'free'"
-              >
-                <text class="radio-text">免费共创</text>
-                <view class="radio-box">
-                  <view v-if="payMode === 'free'" class="radio-dot"></view>
-                </view>
-              </view>
-              <view
-                class="radio-item"
-                :class="{ selected: payMode === 'paid' }"
-                @click="payMode = 'paid'"
-              >
-                <text class="radio-text">付费共创</text>
-                <view class="radio-box">
-                  <view v-if="payMode === 'paid'" class="radio-dot"></view>
-                </view>
-              </view>
-            </view>
-            <view v-if="payMode === 'paid'" class="number-input-row sub">
-              <text class="filter-label">预算（元）</text>
-              <view class="number-btn" data-action="decrement" data-target="budget" @click="onNumberBtn">−</view>
-              <input
-                class="number-input"
-                v-model.number="budget"
-                type="number"
-                maxlength="6"
-              />
-              <view class="number-btn" data-action="increment" data-target="budget" @click="onNumberBtn">+</view>
-            </view>
-          </view>
-
-          <!-- 优先技能（5.1 required_skills，传技能 ID 数组，最多 5 个） -->
-          <view class="setting-group">
-            <text class="setting-label">优先技能（最多 {{ MAX_SKILLS }} 个，可不选）</text>
-            <view class="skill-chip-row">
-              <view
-                v-for="s in selectedSkills"
-                :key="s.id"
-                class="skill-chip"
-                @click="toggleSkill(s.id)"
-              >
-                <text class="skill-chip-t">{{ s.name }}</text>
-                <text class="skill-chip-x">✕</text>
-              </view>
-              <text v-if="!selectedSkills.length" class="skill-empty">未选择</text>
-            </view>
-            <view class="skill-toggle" @click="skillPickerOpen = !skillPickerOpen">
-              {{ skillPickerOpen ? '收起技能列表' : '选择技能' }}
-            </view>
-            <view v-if="skillPickerOpen" class="skill-picker">
-              <view
-                v-for="s in skillOptions"
-                :key="s.id"
-                class="skill-opt"
-                :class="{ on: isSkillOn(s.id) }"
-                @click="toggleSkill(s.id)"
-              >
-                <text class="skill-opt-t">{{ s.name }}</text>
-              </view>
-              <text v-if="!skillOptions.length" class="skill-empty">技能字典未加载（2.8 接口）</text>
-            </view>
-          </view>
-
-          <!-- 其他开关 -->
-          <view class="setting-group">
-            <view class="switch-row">
-              <text class="switch-label">发布后自动创建群聊</text>
-              <view class="switch-box" :class="{ on: autoGroup }" @click="autoGroup = !autoGroup">
-                <view class="switch-knob"></view>
-              </view>
-            </view>
-            <view class="switch-row">
-              <text class="switch-label">设置招募者等级筛选</text>
-              <view class="switch-box" :class="{ on: levelFilterOn }" @click="toggleLevelFilter">
-                <view class="switch-knob"></view>
-              </view>
-            </view>
-            <view v-if="levelFilterOn" class="number-input-row sub">
-              <text class="filter-label">最低等级</text>
-              <view class="number-btn" data-action="decrement" data-target="minLevel" @click="onNumberBtn">−</view>
-              <input
-                class="number-input"
-                v-model.number="minLevel"
-                type="number"
-                maxlength="3"
-              />
-              <view class="number-btn" data-action="increment" data-target="minLevel" @click="onNumberBtn">+</view>
-            </view>
-          </view>
-        </view>
-
-        <view class="sheet-footer">
-          <view class="sheet-btn confirm" @click="confirmAdvanced">完成</view>
-        </view>
+          <text v-if="!skillOptions.length" class="picker-empty">技能字典未加载</text>
+        </scroll-view>
       </view>
     </view>
   </view>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import CustomNavbar from '@/components/common/CustomNavbar.vue'
-import { uploadWorkFile } from '@/api/works.js'
 import { createProject } from '@/api/project.js'
 import { getSkills } from '@/api/user.js'
+import { getUserInfo } from '@/utils/auth.js'
 
-const images = ref([])
-const topic = ref('')
-const intro = ref('')
-const topicTag = ref('')
-const showAdvanced = ref(false)
-
-// 高级设置
-const privacy = ref('public')
-const privacyLabel = ref('公开可见')
-const scheduleDate = ref('')
-const scheduleTime = ref('')
-const recruitCount = ref(10)
-const autoGroup = ref(false)
-const levelFilterOn = ref(false)
-const minLevel = ref(1)
-
-// 报酬：5.1 `mode`（free/paid）+ `budget`（int，单位元，不能为负）
-// —— 后端 2026-09-27 答复 C-3 确认：`mode` 枚举 free/paid；`budget` 是 **int**（旧文档写 string 是错的）
-const payMode = ref('free')
-const budget = ref(1000)
-
-// 优先技能：5.1 `required_skills` 传**技能 ID 数组**（int[]），上限沿用档案技能约定的 5 个
-// ⚠️ 与「返回结构」不一致：项目详情返回的是对象数组（含 required_count/filled_count），入参仍是 int[]
 const MAX_SKILLS = 5
+
+/** 稿上示例日期是 2024-11-15，但那是过期日期；实际默认取「今天 +30 天」 */
+function defaultDeadline() {
+  const d = new Date()
+  d.setDate(d.getDate() + 30)
+  const p = (n) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`
+}
+
+const title = ref('')
+const intro = ref('')
+const members = ref(3)
+const deadlineDate = ref(defaultDeadline())
+const submitting = ref(false)
+
+const pickerOpen = ref(false)
 const skillOptions = ref([])
 const selectedSkills = ref([])
-const skillPickerOpen = ref(false)
 
-/** 2.8 技能字典（失败不阻塞发布，只是选不了技能） */
-async function loadSkills() {
-  try {
-    const res = await getSkills()
-    const d = res && res.data !== undefined ? res.data : res
-    const list = Array.isArray(d) ? d : ((d && d.skills) || [])
-    skillOptions.value = list
-      .map((s) => ({ id: s.skill_id || s.id, name: s.name }))
-      .filter((s) => s.id !== undefined && s.id !== null && s.name)
-  } catch (e) {
-    skillOptions.value = []
-  }
+const me = getUserInfo() || {}
+const nickname = computed(() => me.nickname || me.name || me.username || '我')
+const avatarLetter = computed(() => String(nickname.value).slice(0, 1))
+
+/** 日期拆成 年 / 月 / 日 三段展示（稿上是三段分列） */
+const dateParts = computed(() => {
+  const [y = '', m = '', d = ''] = String(deadlineDate.value || '').split('-')
+  return { year: y, month: m ? m + ' 月' : '', day: d ? d + ' 日' : '' }
+})
+
+function onDateChange(e) {
+  deadlineDate.value = e.detail.value
 }
-loadSkills()
+
+function stepMembers(delta) {
+  const next = Number(members.value || 0) + delta
+  if (next < 1) return
+  if (next > 999) return
+  members.value = next
+}
 
 function isSkillOn(id) {
   return selectedSkills.value.some((s) => String(s.id) === String(id))
@@ -318,84 +182,51 @@ function toggleSkill(id) {
   if (hit) selectedSkills.value = [...selectedSkills.value, hit]
 }
 
+function openSkillPicker() {
+  pickerOpen.value = true
+}
+
+/** 2.8 技能字典（失败不阻塞发布，只是选不了技能） */
+async function loadSkills() {
+  try {
+    const res = await getSkills()
+    const d = res && res.data !== undefined ? res.data : res
+    const list = Array.isArray(d) ? d : ((d && d.skills) || [])
+    skillOptions.value = list
+      .map((s) => ({ id: s.skill_id || s.id, name: s.name }))
+      .filter((s) => s.id !== undefined && s.id !== null && s.name)
+  } catch (e) {
+    skillOptions.value = []
+  }
+}
+
+onMounted(loadSkills)
+
 /**
- * 截止时间 → ISO 8601（如 `2026-12-31T23:59:00`）
- * ⚠️ 后端用 `datetime.fromisoformat()` 解析，只传 `2026-12-31` 这种**纯日期**会在
- *   Python ≤ 3.10 抛 ValueError（接口 500）→ 这里补上时间，未选时间则默认 00:00。
+ * 截止时间 → ISO 8601（如 `2026-12-31T00:00:00`）
+ * ⚠️ 后端用 `datetime.fromisoformat()` 解析，纯日期会 ValueError（接口 500），必须补时间。
  */
 function buildDeadline() {
-  if (!scheduleDate.value) return undefined
-  const t = scheduleTime.value || '00:00'
-  return scheduleDate.value + 'T' + (t.length === 5 ? t + ':00' : t)
+  if (!deadlineDate.value) return undefined
+  return deadlineDate.value + 'T00:00:00'
 }
 
-const privacyOpts = [
-  { key: 'public', label: '公开可见' },
-  { key: 'fans', label: '粉丝可见' },
-  { key: 'mutual', label: '仅互关好友可见' },
-  { key: 'private', label: '仅自己可见' }
-]
-
-function addImage() {
-  uni.chooseImage({
-    count: 9 - images.value.length,
-    success: (res) => {
-      images.value = [...images.value, ...res.tempFilePaths]
-    }
-  })
-}
-
-function removeImage(index) {
-  images.value.splice(index, 1)
-}
-
-function addTopic() {
-  uni.showToast({ title: '添加话题', icon: 'none' })
-}
-
-function atSomeone() {
-  uni.showToast({ title: '@提到', icon: 'none' })
-}
-
-function previewCoop() {
-  uni.showToast({ title: '预览模式', icon: 'none' })
-}
-
-async function publishCoop() {
-  if (!topic.value.trim()) {
-    uni.showToast({ title: '请填写招募主题', icon: 'none' })
+async function publish() {
+  if (submitting.value) return
+  if (!title.value.trim()) {
+    uni.showToast({ title: '请填写项目名称', icon: 'none' })
     return
   }
+  submitting.value = true
   uni.showLoading({ title: '发布中...', mask: true })
   try {
-    // ① 封面图上传：后端没有「项目专用上传」接口，复用作品上传（同为图片/视频类型校验）
-    //    TODO(契约待后端确认)：若后端提供项目上传接口再切换
-    const covers = []
-    for (const path of images.value) {
-      const up = await uploadWorkFile(path)
-      if (up && up.url) covers.push(up.url)
-    }
-    // ② 5.1 创建项目（默认状态 recruiting=招募中）
-    // TODO：autoGroup（自动建群，需再调 7.2 创建群）、scheduleTime 的「定时发布」语义、
-    //   privacy/可见性：文档的项目模型没有可见性字段，先不传
     await createProject({
-      title: topic.value.trim(),
+      title: title.value.trim(),
       description: intro.value.trim() || undefined,
-      topic: topicTag.value || undefined,
-      // mode/budget：后端 2026-09-27 答复 C-3 —— mode ∈ free|paid，budget 为 int（元）；
-      // 免费模式不传 budget（后端默认 0）
-      mode: payMode.value,
-      budget: payMode.value === 'paid'
-        ? Math.max(0, Math.round(Number(budget.value) || 0))
-        : undefined,
-      cover_url: covers[0] || undefined,
-      max_members: recruitCount.value || undefined,
-      required_level: levelFilterOn.value ? minLevel.value : undefined,
-      // required_skills 入参为 int[]（技能 ID）
+      max_members: members.value || undefined,
       required_skills: selectedSkills.value.length
         ? selectedSkills.value.map((s) => Number(s.id))
         : undefined,
-      // deadline 必须 ISO 8601 带时间，见 buildDeadline()
       deadline: buildDeadline()
     })
     uni.hideLoading()
@@ -403,550 +234,403 @@ async function publishCoop() {
     setTimeout(() => uni.navigateBack(), 1000)
   } catch (err) {
     uni.hideLoading()
-    // 失败原因由 upload / request 层按错误码提示
+  } finally {
+    submitting.value = false
   }
-}
-
-function onDateChange(e) {
-  scheduleDate.value = e.detail.value
-}
-
-function onTimeChange(e) {
-  scheduleTime.value = e.detail.value
-}
-
-function toggleLevelFilter() {
-  levelFilterOn.value = !levelFilterOn.value
-}
-
-function onNumberBtn(e) {
-  const target = e.currentTarget.dataset.target
-  const action = e.currentTarget.dataset.action
-  if (target === 'recruitCount') {
-    if (action === 'decrement' && recruitCount.value > 1) recruitCount.value--
-    if (action === 'increment') recruitCount.value++
-  } else if (target === 'minLevel') {
-    if (action === 'decrement' && minLevel.value > 1) minLevel.value--
-    if (action === 'increment') minLevel.value++
-  } else if (target === 'budget') {
-    if (action === 'decrement' && budget.value > 0) budget.value = Math.max(0, budget.value - 100)
-    if (action === 'increment') budget.value = (Number(budget.value) || 0) + 100
-  }
-}
-
-function confirmAdvanced() {
-  const found = privacyOpts.find(p => p.key === privacy.value)
-  privacyLabel.value = found ? found.label : '公开可见'
-  showAdvanced.value = false
 }
 </script>
 
 <style scoped>
+/* 402 宽稿 → rpx：1px ≈ 1.8657rpx */
 .page {
-  background: #f5f5f5;
-  min-height: 100vh;
-  padding-bottom: 120rpx;
-}
-
-.edit-scroll {
-  height: calc(100vh - 120rpx);
-}
-
-/* 图片上传 */
-.upload-section {
-  background: #fff;
-  padding: 24rpx;
-}
-
-.upload-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12rpx;
-}
-
-.upload-item {
-  width: 200rpx;
-  height: 200rpx;
-  position: relative;
-  border-radius: 12rpx;
+  height: 100vh;
   overflow: hidden;
-}
-
-.upload-img {
-  width: 100%;
-  height: 100%;
-  background: #f0f0f0;
-}
-
-.remove-img {
-  position: absolute;
-  top: 6rpx;
-  right: 6rpx;
-  width: 36rpx;
-  height: 36rpx;
-  background: rgba(0,0,0,0.5);
-  color: #fff;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20rpx;
-}
-
-.upload-add {
-  width: 200rpx;
-  height: 200rpx;
-  border: 2rpx dashed #ddd;
-  border-radius: 12rpx;
+  background: #ffffff;
   display: flex;
   flex-direction: column;
+}
+
+/* 稿 y84 有一条通栏 #f6f6f4 细线（导航与内容的分界） */
+.nav-divider {
+  height: 1rpx;
+  background: #f6f6f4;
+  flex-shrink: 0;
+}
+
+.form-scroll {
+  flex: 1;
+  height: 0;
+  min-height: 0;
+  padding: 0 37rpx;
+  box-sizing: border-box;
+}
+
+/* 稿上无滚动条；H5 的 scroll-view 会画出滚动条，遮掉 */
+.form-scroll ::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+/* ---------- 发起人卡 ---------- */
+.intro-card {
+  margin-top: 63rpx;
+  height: 142rpx;
+  border-radius: 37rpx;
+  background: #576960;
+  display: flex;
+  align-items: center;
+  padding: 0 30rpx;
+  box-sizing: border-box;
+}
+
+.ic-avatar {
+  width: 78rpx;
+  height: 78rpx;
+  border-radius: 50%;
+  background: #22211f;
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8rpx;
-  background: #fafafa;
+  flex-shrink: 0;
 }
 
-.add-icon {
-  font-size: 48rpx;
-  color: #ccc;
+.ic-avatar-t {
+  font-size: 27rpx;
+  color: #d1fae5;
 }
 
-.add-text {
+/* 稿上昵称顶部距卡片顶 22px，下划线在 38px 处（不是垂直居中） */
+.ic-main {
+  margin-left: 47rpx;
+  min-width: 0;
+  align-self: stretch;
+  padding-top: 41rpx;
+  box-sizing: border-box;
+}
+
+.ic-name {
+  display: block;
+  font-size: 24rpx;
+  line-height: 1;
+  color: #b0b0b0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 稿上下划线比昵称宽（x94.5..224，129.5px），是固定长度的可编辑下划线 */
+.ic-line {
+  width: 242rpx;
+  height: 1rpx;
+  margin-left: -19rpx;
+  margin-top: 6rpx;
+  background: #72817b;
+}
+
+.ic-title {
+  align-self: flex-start;
+  margin-top: 36rpx;
+  margin-left: auto;
+  margin-right: 55rpx;
+  padding-left: 20rpx;
+  font-size: 25rpx;
+  color: #ffffff;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ---------- 标签 ---------- */
+.f-label {
+  display: block;
+  margin-top: 36rpx;
+  margin-left: 19rpx;
+  font-size: 26rpx;
+  line-height: 1;
+  color: #7c7c7c;
+}
+
+/* 稿上各标签与上一块的距离不同，逐个对齐（1x px） */
+.f-label.lbl-first {
+  margin-top: 35rpx;
+}
+
+.f-label.lbl-intro {
+  margin-top: 43rpx;
+}
+
+.f-label.lbl-skill {
+  margin-top: 0;
+}
+
+.f-label.lbl-mem {
+  margin-top: 30rpx;
+}
+
+.f-label.lbl-date {
+  margin-top: 30rpx;
+}
+
+/* ---------- 项目名称 ---------- */
+.f-input-wrap {
+  margin-top: 18rpx;
+  height: 78rpx;
+  border: 1rpx solid #ebe9e9;
+  border-radius: 15rpx;
+  display: flex;
+  align-items: center;
+  padding: 0 24rpx;
+  box-sizing: border-box;
+}
+
+.f-input {
+  width: 100%;
+  font-size: 26rpx;
+  color: #2b2b2b;
+}
+
+/* ---------- 简介 ---------- */
+.f-textarea-wrap {
+  margin-top: 8rpx;
+}
+
+/* 稿上「简介」标签下有一条 168px 宽的浅灰分隔线，不是输入框边框 */
+.intro-rule {
+  width: 313rpx;
+  height: 2rpx;
+  margin-left: 19rpx;
+  margin-bottom: 0;
+  background: #b7b7b7;
+}
+
+.f-textarea {
+  width: 100%;
+  height: 201rpx;
+  font-size: 26rpx;
+  color: #2b2b2b;
+  line-height: 1.5;
+}
+
+/* ---------- 技能胶囊 ---------- */
+.chip-row {
+  margin-top: 17rpx;
+  padding-left: 6rpx;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 19rpx;
+}
+
+.chip {
+  height: 48rpx;
+  padding: 0 28rpx;
+  border-radius: 24rpx;
+  background: #8bad9a;
+  border: 1rpx solid #c7dcd1;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+}
+
+.chip-t {
+  font-size: 24rpx;
+  color: #ffffff;
+}
+
+.chip-add {
+  background: transparent;
+  border: 1rpx solid #c8ddd1;
+}
+
+.chip-add-t {
+  font-size: 26rpx;
+  color: #8bad9a;
+  line-height: 1;
+}
+
+/* ---------- 招募人数步进器 ---------- */
+.stepper {
+  margin-top: 16rpx;
+  height: 93rpx;
+  border: 1rpx solid #ebe9e8;
+  border-radius: 15rpx;
+  background: #fbfbfa;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 15rpx;
+  box-sizing: border-box;
+}
+
+.step-btn {
+  width: 70rpx;
+  height: 70rpx;
+  box-sizing: border-box;
+  border-radius: 8rpx;
+  background: #ffffff;
+  border: 1rpx solid #e9e9e9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-btn-t {
+  font-size: 32rpx;
+  color: #57534e;
+  line-height: 1;
+}
+
+.step-val {
+  font-size: 36rpx;
+  color: #254737;
+}
+
+/* ---------- 截止日期 ---------- */
+.date-row {
+  margin-top: 16rpx;
+  width: 328rpx;
+  height: 52rpx;
+  border: 1rpx solid #d7e8df;
+  border-radius: 10rpx;
+  background: #f2f7f4;
+  display: flex;
+  align-items: center;
+  padding: 0 16rpx;
+  box-sizing: border-box;
+}
+
+.date-icon {
+  width: 24rpx;
+  height: 24rpx;
+  margin-right: 40rpx;
+}
+
+.date-y,
+.date-m,
+.date-d {
   font-size: 22rpx;
-  color: #bbb;
+  color: #44403c;
 }
 
-/* 输入区域 */
-.input-section {
-  background: #fff;
-  padding: 24rpx 30rpx;
-  margin-top: 10rpx;
+.date-m {
+  margin-left: 20rpx;
 }
 
-.title-input {
-  width: 100%;
-  height: 80rpx;
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #333;
+.date-d {
+  margin-left: 35rpx;
 }
 
-.body-input {
-  width: 100%;
-  min-height: 160rpx;
-  font-size: 28rpx;
-  color: #333;
-  line-height: 1.6;
-  margin-top: 12rpx;
+.form-tail {
+  height: 40rpx;
 }
 
-/* 功能选项 */
-.options-section {
-  background: #fff;
-  margin-top: 10rpx;
-  padding: 0 30rpx;
+/* ---------- 底部 CTA ---------- */
+.cta-bar {
+  flex-shrink: 0;
+  padding: 20rpx 37rpx calc(37rpx + env(safe-area-inset-bottom));
+  background: #ffffff;
 }
 
-.option-row {
+.cta-btn {
+  height: 86rpx;
+  border-radius: 17rpx;
+  background: #1b382b;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 28rpx 0;
-  border-bottom: 1px solid #f5f5f5;
+  justify-content: center;
 }
 
-.option-left {
-  display: flex;
-  align-items: center;
-  gap: 16rpx;
+.cta-btn.disabled {
+  opacity: 0.6;
 }
 
-.option-icon {
-  font-size: 32rpx;
+.cta-t {
+  font-size: 30rpx;
+  color: #ffffff;
 }
 
-.option-label {
-  font-size: 28rpx;
-  color: #333;
+/* 稿上按钮内容＝「发布」两字 + 20px 圆形箭头（圆 #4a6258、白色 →），整体居中 */
+.cta-arrow {
+  width: 37rpx;
+  height: 37rpx;
+  margin-left: 21rpx;
+  flex-shrink: 0;
 }
 
-.option-right {
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-}
-
-.option-hint {
-  font-size: 24rpx;
-  color: #999;
-}
-
-.option-arrow {
-  font-size: 28rpx;
-  color: #ccc;
-}
-
-/* 高级设置入口 */
-.advanced-section {
-  background: #fff;
-  margin-top: 10rpx;
-  padding: 0 30rpx;
-}
-
-/* 底部栏 */
-.bottom-bar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16rpx 30rpx;
-  padding-bottom: calc(16rpx + env(safe-area-inset-bottom));
-  background: #fff;
-  border-top: 1px solid #f0f0f0;
-}
-
-.bar-left {
-  display: flex;
-  gap: 24rpx;
-}
-
-.bar-btn {
-  display: flex;
-  align-items: center;
-  gap: 6rpx;
-  padding: 12rpx 20rpx;
-  background: #f5f5f5;
-  border-radius: 30rpx;
-}
-
-.bar-btn-icon {
-  font-size: 24rpx;
-}
-
-.bar-btn-label {
-  font-size: 24rpx;
-  color: #666;
-}
-
-.publish-btn {
-  background: #4455ee;
-  color: #fff;
-  padding: 18rpx 40rpx;
-  border-radius: 36rpx;
-  font-size: 28rpx;
-  font-weight: 600;
-}
-
-/* 弹窗 */
-.modal-mask {
+/* ---------- 技能弹层 ---------- */
+.picker-mask {
   position: fixed;
   left: 0;
   top: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.45);
   z-index: 1000;
   display: flex;
   align-items: flex-end;
 }
 
-.advanced-sheet {
+.picker-sheet {
   width: 100%;
-  max-height: 80vh;
-  background: #fff;
-  border-radius: 24rpx 24rpx 0 0;
-  overflow-y: auto;
+  max-height: 70vh;
+  background: #ffffff;
+  border-radius: 28rpx 28rpx 0 0;
   padding-bottom: env(safe-area-inset-bottom);
-  animation: slideUp 0.3s ease;
-}
-
-@keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
-
-.sheet-handle {
-  display: flex;
-  justify-content: center;
-  padding: 20rpx 0 10rpx;
-}
-
-.handle-bar {
-  width: 60rpx;
-  height: 6rpx;
-  background: #ddd;
-  border-radius: 3rpx;
-}
-
-.sheet-title {
-  text-align: center;
-  font-size: 32rpx;
-  font-weight: 700;
-  color: #333;
-  padding: 0 30rpx 20rpx;
-}
-
-.sheet-body {
-  padding: 0 30rpx;
-}
-
-.setting-group {
-  margin-bottom: 28rpx;
-}
-
-.setting-label {
-  font-size: 26rpx;
-  font-weight: 600;
-  color: #666;
-  display: block;
-  margin-bottom: 12rpx;
-}
-
-.radio-list {
   display: flex;
   flex-direction: column;
 }
 
-.radio-item {
+.picker-head {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 22rpx 0;
-  border-bottom: 1px solid #f5f5f5;
+  justify-content: space-between;
+  padding: 30rpx 37rpx 20rpx;
 }
 
-.radio-item.selected .radio-text {
-  color: #4455ee;
-  font-weight: 500;
-}
-
-.radio-text {
+.picker-title {
   font-size: 28rpx;
-  color: #333;
+  color: #2b2b2b;
 }
 
-.radio-box {
-  width: 32rpx;
-  height: 32rpx;
-  border: 2px solid #ddd;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.picker-done {
+  font-size: 28rpx;
+  color: #4e6f66;
 }
 
-.radio-dot {
-  width: 18rpx;
-  height: 18rpx;
-  background: #4455ee;
-  border-radius: 50%;
+.picker-body {
+  max-height: 50vh;
+  padding: 0 37rpx 30rpx;
+  box-sizing: border-box;
 }
 
-.setting-row {
-  display: flex;
-  gap: 16rpx;
-}
-
-.picker-btn {
-  flex: 1;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20rpx 24rpx;
-  background: #f5f5f5;
-  border-radius: 12rpx;
-  font-size: 26rpx;
-  color: #333;
-}
-
-.picker-arrow {
-  color: #ccc;
-}
-
-/* 数字输入 */
-.number-input-row {
-  display: flex;
-  align-items: center;
-  gap: 16rpx;
-  justify-content: center;
-}
-
-.number-input-row.sub {
-  margin-top: 12rpx;
-  padding-left: 30rpx;
-}
-
-.number-btn {
-  width: 64rpx;
-  height: 64rpx;
-  background: #f0f0f0;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 32rpx;
-  color: #333;
-  font-weight: bold;
-}
-
-.number-btn:active {
-  background: #dcdcdc;
-}
-
-.number-input {
-  width: 100rpx;
-  height: 64rpx;
-  text-align: center;
-  font-size: 32rpx;
-  font-weight: 600;
-  color: #333;
-  background: #f5f5f5;
-  border-radius: 12rpx;
-}
-
-.filter-label {
-  font-size: 26rpx;
-  color: #888;
-}
-
-/* 优先技能选择 */
-.skill-chip-row {
+.picker-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 12rpx;
-  margin-bottom: 16rpx;
+  gap: 18rpx;
 }
 
-.skill-chip {
-  display: flex;
-  align-items: center;
-  padding: 8rpx 18rpx;
-  background: #eef0ff;
+.picker-opt {
+  padding: 12rpx 26rpx;
   border-radius: 24rpx;
+  border: 1rpx solid #dfe7e3;
+  background: #ffffff;
 }
 
-.skill-chip-t {
-  font-size: 26rpx;
-  color: #4455ee;
+.picker-opt.on {
+  background: #8bad9a;
+  border-color: #c7dcd1;
 }
 
-.skill-chip-x {
-  font-size: 22rpx;
-  color: #4455ee;
-  margin-left: 10rpx;
-}
-
-.skill-empty {
+.picker-opt-t {
   font-size: 24rpx;
-  color: #bbb;
+  color: #4a4a4a;
 }
 
-.skill-toggle {
-  height: 64rpx;
-  border-radius: 32rpx;
-  background: #f5f5f5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 26rpx;
-  color: #4455ee;
+.picker-opt.on .picker-opt-t {
+  color: #ffffff;
 }
 
-.skill-toggle:active {
-  background: #ececec;
-}
-
-.skill-picker {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12rpx;
-  padding: 20rpx;
-  margin-top: 16rpx;
-  background: #fafafa;
-  border-radius: 12rpx;
-}
-
-.skill-opt {
-  padding: 10rpx 20rpx;
-  background: #fff;
-  border: 1px solid #e5e5e5;
-  border-radius: 24rpx;
-}
-
-.skill-opt.on {
-  background: #eef0ff;
-  border-color: #4455ee;
-}
-
-.skill-opt-t {
-  font-size: 26rpx;
-  color: #333;
-}
-
-.skill-opt.on .skill-opt-t {
-  color: #4455ee;
-}
-
-/* 开关 */
-.switch-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 22rpx 0;
-  border-bottom: 1px solid #f5f5f5;
-}
-
-.switch-label {
-  font-size: 28rpx;
-  color: #333;
-}
-
-.switch-box {
-  width: 72rpx;
-  height: 40rpx;
-  background: #ddd;
-  border-radius: 20rpx;
-  position: relative;
-  transition: 0.2s;
-}
-
-.switch-box.on {
-  background: #4455ee;
-}
-
-.switch-knob {
-  width: 32rpx;
-  height: 32rpx;
-  background: #fff;
-  border-radius: 50%;
-  position: absolute;
-  top: 4rpx;
-  left: 4rpx;
-  transition: 0.2s;
-  box-shadow: 0 2rpx 4rpx rgba(0,0,0,0.2);
-}
-
-.switch-box.on .switch-knob {
-  left: 36rpx;
-}
-
-.sheet-footer {
-  padding: 24rpx 30rpx 30rpx;
-}
-
-.sheet-btn.confirm {
-  width: 100%;
-  height: 80rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #4455ee;
-  border-radius: 40rpx;
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #fff;
+.picker-empty {
+  font-size: 24rpx;
+  color: #b4b4b4;
 }
 </style>
