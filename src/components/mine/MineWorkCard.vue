@@ -79,23 +79,36 @@ function onError() {
 </script>
 
 <style scoped>
+/* 设计稿实测（Figma node-id=172-576，「Article - Artwork Card 2」Frame）：
+   173×247，圆角仅上左/上右 16px，填充 #1C2A22 65%，描边 1px #FFFFFF 15%，
+   两层投影 0/4/6/-4 与 0/10/15/-3（各 10%）。 */
+/* 描边用 inset 阴影画，避免 border 参与盒模型把卡片撑高 2px */
 .mcard {
-  background: #1d2923; /* 左（白底）版实测：卡片信息区是深绿近黑 */
-  border-radius: 22rpx;
+  background: #1c2a22;
+  border-radius: 30rpx 30rpx 0 0;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.15),
+    0 4px 6px -4px rgba(0, 0, 0, 0.1),
+    0 10px 15px -3px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
+/* 封面按设计稿比例：卡 173 宽 / 封面高 247−72 = 175，即 101.16% 的卡片宽度。
+   用百分比 padding 撑高，卡片宽度随屏宽变化时封面自动等比（原来写死 380rpx 太高）。 */
 .mcard-cover {
   position: relative;
   width: 100%;
+  padding-top: 101.4%;
   background: #3a3f3d;
 }
 
 .mcard-img {
+  position: absolute;
+  top: 0;
+  left: 0;
   display: block;
   width: 100%;
-  /* 设计稿卡片约 150x280（图:文 ≈ 70:30），原来 560rpx 太高，用户反馈「卡片太长」 */
-  height: 380rpx;
+  height: 100%;
 }
 
 /* 精选：红色胶囊角标 */
@@ -122,13 +135,21 @@ function onError() {
   color: #ffffff;
 }
 
+/* 信息区：设计稿 Artwork Info 固定高 72px、padding 10px、纵向 space-between。 */
 .mcard-body {
-  padding: 20rpx 22rpx 16rpx;
+  box-sizing: border-box;
+  height: 134rpx;
+  padding: 19rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
 }
 
 .mcard-title {
   display: block;
-  font-size: 27rpx;
+  font-size: 26rpx;
+  line-height: 30rpx;
   font-weight: 600;
   color: #f3f5f4;
   overflow: hidden;
@@ -138,8 +159,9 @@ function onError() {
 
 .mcard-sub {
   display: block;
-  margin-top: 8rpx;
-  font-size: 21rpx;
+  margin-top: 2rpx;
+  font-size: 20rpx;
+  line-height: 24rpx;
   color: #9aa39f;
   overflow: hidden;
   white-space: nowrap;
@@ -148,7 +170,7 @@ function onError() {
 
 .mcard-line {
   height: 2rpx;
-  margin: 18rpx 0 14rpx;
+  margin: 6rpx 0;
   background: rgba(255, 255, 255, 0.12);
 }
 

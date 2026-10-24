@@ -453,14 +453,14 @@ function shareTo(e) {
 /* 双列瀑布流 */
 .waterfall {
   display: flex;
-  gap: 24rpx; /* 设计稿：两列间距约 12px */
+  gap: 22rpx; /* 设计稿：Column gap 12px（358 宽 → 两列各 173） */
 }
 
 .waterfall-column {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 24rpx; /* 卡片之间的竖向间距 */
+  gap: 22rpx; /* 设计稿：Row gap 12px */
 }
 
 .waterfall-item {
