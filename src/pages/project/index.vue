@@ -379,7 +379,10 @@ function goSearch() { uni.navigateTo({ url: "/pages/search/index" }) }
 .funnel-icon { width: 34rpx; height: 34rpx; }
 
 /* 列表 */
-.list-scroll { flex: 1; padding: 8rpx var(--page-gutter) 24rpx; box-sizing: border-box; overflow: hidden; }
+/* 左右各让出 16rpx：uni 的 scroll-view 内容层是 overflow-x:hidden，
+   卡片贴着内容区边缘时右侧阴影会被裁掉。卡片自己补回 16rpx margin，
+   视觉位置仍与上面胶囊栏对齐（净内边距 = --page-gutter）。 */
+.list-scroll { flex: 1; padding: 8rpx calc(var(--page-gutter) - 16rpx) 24rpx; box-sizing: border-box; overflow: hidden; }
 .list-empty { text-align: center; padding: 80rpx 20rpx; }
 .empty-text { font-size: 26rpx; color: #bbb; }
 

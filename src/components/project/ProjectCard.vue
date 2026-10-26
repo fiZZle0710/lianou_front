@@ -102,9 +102,16 @@ const skillText = computed(() => {
   background: #fff;
   border-radius: 30rpx;
   padding: 22rpx 22rpx 26rpx;
-  margin-bottom: 22rpx;
-  /* 四边都要有阴影（原来只有 y 偏移，右侧几乎看不出，用户反馈补上） */
-  box-shadow: 0 0 20rpx rgba(0, 0, 0, 0.07), 0 8rpx 22rpx rgba(0, 0, 0, 0.05);
+  /* 16rpx 左右外边距给阴影留位置（外层 scroll-view 内容层会横向裁切），
+     列表容器同时把内边距减 16rpx，视觉左右边距保持不变 */
+  margin: 0 16rpx 22rpx;
+  /* 设计稿（tif/项目.tif 2x 实测）：阴影只落在右、下两侧，左/上为 0。
+     右缘剖面：边缘最暗 203/255（α≈0.20），向外约 10px 衰减到 255；
+     下缘剖面：最暗 205/255（α≈0.20），同样约 10px 衰减。
+     反解得 offset≈4px / 3.6px、blur≈7px → 10rpx 7rpx 12rpx rgba(0,0,0,.22)。
+     注意：光有 box-shadow 不够——外层 scroll-view 内容层是 overflow-x:hidden，
+     卡片贴边时右侧阴影会被裁掉，所以列表容器内边距减 16rpx、卡片自己加 16rpx margin。 */
+  box-shadow: 10rpx 7rpx 12rpx rgba(0, 0, 0, 0.22);
 }
 .proj-card:active { opacity: .94; }
 
