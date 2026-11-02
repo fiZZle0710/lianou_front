@@ -92,11 +92,6 @@ const skillText = computed(() => {
 </script>
 
 <style scoped>
-/* 稿上标题类文字用宋体（衬线），系统无宋体时回落到默认字体 */
-.serif {
-  font-family: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", serif;
-}
-
 .proj-card {
   position: relative;
   background: #fff;
@@ -134,7 +129,6 @@ const skillText = computed(() => {
   font-size: 30rpx;
   color: #2e2e2e;
   font-weight: 700;
-  font-family: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", serif;
 }
 .name-sub { font-size: 24rpx; color: #6b6b6b; margin-left: 6rpx; }
 .quote {
@@ -168,7 +162,6 @@ const skillText = computed(() => {
   font-size: 19rpx;
   color: #3c3c3c;
   font-weight: 700;
-  font-family: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", serif;
   margin-bottom: 10rpx;
   white-space: nowrap;
 }

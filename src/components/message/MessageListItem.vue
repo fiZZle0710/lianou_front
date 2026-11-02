@@ -89,7 +89,6 @@ const emit = defineEmits(['click'])
   font-size: 36rpx;
   color: #2b2b2b;
   font-weight: 700;
-  font-family: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", serif;
   display: block;
   line-height: 1.25;
 }

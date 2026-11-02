@@ -320,7 +320,6 @@ async function onClean() {
   font-size: 32rpx;
   color: #1f1f1f;
   font-weight: 700;
-  font-family: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", serif;
 }
 
 /* 三个功能入口 */
@@ -369,7 +368,6 @@ async function onClean() {
 .tab-text {
   font-size: 34rpx;
   color: #a0a0a0;
-  font-family: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", serif;
 }
 .tab-item.active .tab-text { color: #1f1f1f; font-weight: 700; }
 

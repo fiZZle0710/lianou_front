@@ -363,7 +363,6 @@ function goSearch() { uni.navigateTo({ url: "/pages/search/index" }) }
   font-size: 32rpx;
   color: #1f1f1f;
   font-weight: 700;
-  font-family: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", serif;
 }
 
 /* 分类胶囊 */

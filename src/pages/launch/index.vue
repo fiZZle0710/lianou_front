@@ -2,7 +2,7 @@
   <!--
     登录首页（设计稿：Figma「莲藕登录」node 0-1 左屏）
     纯白底 + 中间大片吉祥物预留区 + 底部「应用图标 + 莲藕字标」。
-    吉祥物与字标素材还没给，先用现有应用图标 + 楷体文字占位：
+    吉祥物与字标素材还没给，先用现有应用图标 + 默认字体文字占位：
       · 吉祥物：放到 .mascot-stage 里即可，位置已按稿留好
       · 字标：把 .brand-word 的 text 换成 <image src="/static/xxx.png"> 即可
   -->
@@ -76,7 +76,6 @@ onLoad(() => {
 
 .brand-word {
   margin-left: 18rpx;
-  font-family: 'STKaiti', 'KaiTi', 'Kaiti SC', '楷体', serif;
   font-size: 56rpx; /* 设计稿：约 28px */
   font-weight: 700;
   letter-spacing: 4rpx;
