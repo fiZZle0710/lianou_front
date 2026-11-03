@@ -64,10 +64,13 @@ export const mockFollowingUsers = {
 }
 
 // 项目，key = 项目id
+// 项目列表 mock：文案照 tif/项目.pptm slide1（稿上 5 张卡文案完全相同）
 export const mockProjects = {
-  1: { id: 1, title: "科幻短片共创", owner: "罗大侠", ownerId: 1, ownerLevel: 12, coopCount: 8, skills: ["编剧", "导演", "剪辑"], requirements: [{ label: "主题：科幻", ok: true }, { label: "等级 LV.5 以上", ok: true }, { label: "有 1 次共创经历", ok: false }, { label: "优先技能：剪辑", ok: true }], members: ["张", "李", "王"], current: 3, total: 6, deadline: "2026-09-01", intro: "寻找热爱科幻的伙伴一起完成一部短片，欢迎加入！" },
-  2: { id: 2, title: "国风插画合集", owner: "冯大侠", ownerId: 2, ownerLevel: 8, coopCount: 5, skills: ["插画", "文案"], requirements: [{ label: "主题：国风", ok: true }, { label: "等级 LV.3 以上", ok: true }, { label: "有插画经验", ok: true }], members: ["王"], current: 2, total: 4, deadline: "2026-08-20", intro: "一起做一套国风插画，需要插画师和文案。" },
-  3: { id: 3, title: "民谣歌曲创作", owner: "创意设计师", ownerId: 3, ownerLevel: 8, coopCount: 4, skills: ["作词", "作曲", "吉他"], requirements: [{ label: "主题：民谣", ok: true }, { label: "有编曲经验", ok: false }], members: ["李"], current: 1, total: 3, deadline: "2026-07-15", intro: "想一起做几首温暖的民谣。" }
+  1: { id: 1, title: "共创项目招募", owner: "桂花糕", ownerId: 1, ownerLevel: 5, coopCount: 3, skills: ["编剧", "剪辑"], requirements: [], members: ["桂", "小", "纸", "糯", "铁"], current: 8, total: 10, deadline: "2026-08-08", topic: "红色教育", levelReq: "Lv.5", experienceReq: "3次共创经历", skillText: "善写剧本 配音者优先", intro: "欢迎所有对视频创作感兴趣的伙伴加入~" },
+  2: { id: 2, title: "共创项目招募", owner: "桂花糕", ownerId: 1, ownerLevel: 5, coopCount: 3, skills: ["编剧", "剪辑"], requirements: [], members: ["桂", "小", "纸", "糯", "铁"], current: 8, total: 10, deadline: "2026-08-08", topic: "红色教育", levelReq: "Lv.5", experienceReq: "3次共创经历", skillText: "善写剧本 配音者优先", intro: "欢迎所有对视频创作感兴趣的伙伴加入~" },
+  3: { id: 3, title: "共创项目招募", owner: "桂花糕", ownerId: 1, ownerLevel: 5, coopCount: 3, skills: ["编剧", "剪辑"], requirements: [], members: ["桂", "小", "纸", "糯", "铁"], current: 8, total: 10, deadline: "2026-08-08", topic: "红色教育", levelReq: "Lv.5", experienceReq: "3次共创经历", skillText: "善写剧本 配音者优先", intro: "欢迎所有对视频创作感兴趣的伙伴加入~" },
+  4: { id: 4, title: "共创项目招募", owner: "桂花糕", ownerId: 1, ownerLevel: 5, coopCount: 3, skills: ["编剧", "剪辑"], requirements: [], members: ["桂", "小", "纸", "糯", "铁"], current: 8, total: 10, deadline: "2026-08-08", topic: "红色教育", levelReq: "Lv.5", experienceReq: "3次共创经历", skillText: "善写剧本 配音者优先", intro: "欢迎所有对视频创作感兴趣的伙伴加入~" },
+  5: { id: 5, title: "共创项目招募", owner: "桂花糕", ownerId: 1, ownerLevel: 5, coopCount: 3, skills: ["编剧", "剪辑"], requirements: [], members: ["桂", "小", "纸", "糯", "铁"], current: 8, total: 10, deadline: "2026-08-08", topic: "红色教育", levelReq: "Lv.5", experienceReq: "3次共创经历", skillText: "善写剧本 配音者优先", intro: "欢迎所有对视频创作感兴趣的伙伴加入~" }
 }
 
 // 私聊记录，key = 对方 userId
@@ -103,21 +106,26 @@ export const mockGroups = {
 }
 
 // 项目申请列表，key = 项目 id
+// 项目申请列表 mock：文案照 tif/项目.pptm slide8（前 3 条待审 → 通过/拒绝；后 3 条已处理 → 状态胶囊）
 export const mockProjectApplications = {
   1: [
-    { id: 1, name: "张编剧", level: 6, coopCount: 2, intro: "我擅长剧本创作，有多年短视频经验，希望能加入贵项目！", filled: 3, total: 6, status: "pending" },
-    { id: 2, name: "李剪辑", level: 9, coopCount: 5, intro: "资深剪辑师，熟悉各类风格，期待合作。", filled: 3, total: 6, status: "pending" }
+    { id: 1, name: "纸鸢", level: 10, coopCount: 2, intro: "老大我又来求带了，这次的项目很有搞头啊。", filled: 8, total: 10, status: "pending", unread: true },
+    { id: 2, name: "桂花糕", level: 3, coopCount: 0, intro: "大佬！新手小白求带！", filled: 8, total: 10, status: "pending" },
+    { id: 3, name: "小汤圆", level: 8, coopCount: 6, intro: "大佬！我擅长剪活动快剪，求带！", filled: 8, total: 10, status: "pending" },
+    { id: 4, name: "桂花糕", level: 3, coopCount: 0, intro: "大佬！新手小白求带！", filled: 8, total: 10, status: "approved" },
+    { id: 5, name: "桂花糕", level: 3, coopCount: 0, intro: "大佬！新手小白求带！", filled: 8, total: 10, status: "rejected" },
+    { id: 6, name: "桂花糕", level: 3, coopCount: 0, intro: "大佬！新手小白求带！", filled: 8, total: 10, status: "approved" }
   ],
   2: [
-    { id: 3, name: "王插画", level: 4, coopCount: 1, intro: "喜欢国风插画，想一起创作。", filled: 2, total: 4, status: "pending" }
+    { id: 7, name: "王插画", level: 4, coopCount: 1, intro: "喜欢国风插画，想一起创作。", filled: 2, total: 4, status: "pending" }
   ]
 }
 
-// 我的申请，key = 当前用户 id
 export const mockMyApplications = {
   1: [
-    { id: 1, projectName: "科幻短片共创", time: "2026-08-02 提交", status: "reviewing" },
-    { id: 2, projectName: "国风插画合集", time: "2026-07-28 提交", status: "approved" },
-    { id: 3, projectName: "民谣歌曲创作", time: "2026-07-15 提交", status: "expired" }
+    { id: 1, projectName: "桂花糕", time: "昨天16：44", status: "approved" },
+    { id: 2, projectName: "铁皮青蛙", time: "今天18：20", status: "reviewing" },
+    { id: 3, projectName: "罗大侠", time: "一周前", status: "expired" },
+    { id: 4, projectName: "纸鸢", time: "昨天16：44", status: "rejected" }
   ]
 }

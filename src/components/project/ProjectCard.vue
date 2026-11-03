@@ -1,8 +1,9 @@
 <template>
-  <!-- 项目卡片：对齐 tif/项目.tif 设计稿
-       结构 = 发起人头像 + 「XX 发布的共创项目招募」+ 引言 + 左右两块浅绿信息区 + 右下箭头 -->
-  <view class="proj-card" @click="emit('click')">
-    <!-- 发起人 + 标题 + 更多 -->
+  <!-- 项目卡片：按 tif/项目.pptm
+       variant="list" → slide1 项目中心：343.2×154，右上「⋯」，右下箭头
+       variant="mine" → slide2 我的项目：355.6×159.6，右上日期，右下「⋯」 -->
+  <view class="proj-card" :class="'v-' + variant" @click="emit('click')">
+    <!-- 发起人 + 标题 + 右侧附属 -->
     <view class="head">
       <view class="avatar-bg"><text class="avatar-txt">{{ ownerName[0] }}</text></view>
       <view class="head-info">
@@ -12,11 +13,8 @@
         </view>
         <text v-if="intro" class="quote">“{{ intro }}”</text>
       </view>
-      <view class="kebab">
-        <view class="dot"></view>
-        <view class="dot"></view>
-        <view class="dot"></view>
-      </view>
+      <text v-if="variant === 'mine' && date" class="head-date">{{ date }}</text>
+      <image v-else-if="variant === 'list'" class="kebab" src="/static/icons/icon-dots-grey.svg" mode="aspectFit" />
     </view>
 
     <!-- 条件 + 招募人数 -->
@@ -25,14 +23,14 @@
       <view class="block block-req">
         <text class="block-title">主题：{{ topic }}</text>
         <view class="req-line">
-          <text class="req-t">· 加入本项目需达到</text>
+          <text class="req-t">·加入本项目需达到</text>
           <text class="chip">{{ levelReq }}</text>
         </view>
         <view class="req-line">
-          <text class="req-t">· 至少有</text>
+          <text class="req-t">·至少有</text>
           <text class="chip">{{ experienceReq }}</text>
         </view>
-        <text class="req-t ellipsis">· {{ skillText }}</text>
+        <text class="req-t ellipsis">·{{ skillText }}</text>
       </view>
 
       <!-- 右：招募人数与成员 -->
@@ -42,36 +40,45 @@
           <view v-for="(m, i) in memberSlots" :key="i" class="m-avatar">
             <text class="m-txt">{{ m }}</text>
           </view>
-          <view v-if="hasMoreThanSlots" class="m-more"><text class="m-more-t">···</text></view>
+          <view v-if="hasMoreThanSlots" class="m-more"><text class="m-more-t">…</text></view>
         </view>
       </view>
     </view>
 
-    <image class="arrow" src="/static/icons/icon-arrow-right.svg" mode="aspectFit" />
+    <!-- 右下角：列表卡是箭头，我的卡是「⋯」 -->
+    <image
+      class="corner"
+      :src="variant === 'mine' ? '/static/icons/icon-dots-grey.svg' : '/static/icons/icon-arrow-right-grey.svg'"
+      mode="aspectFit"
+    />
   </view>
 </template>
 <script setup>
 import { computed } from 'vue'
 
 const props = defineProps({
+  variant: { type: String, default: 'list' },
   ownerName: { type: String, default: "" },
   ownerLevel: { type: Number, default: 0 },
   title: { type: String, default: "" },
   deadline: { type: String, default: "" },
+  date: { type: String, default: "" },
   intro: { type: String, default: "" },
   topic: { type: String, default: "" },
   levelReq: { type: String, default: "" },
   experienceReq: { type: String, default: "" },
   skills: { type: Array, default: () => [] },
+  skillTextRaw: { type: String, default: "" },
   members: { type: Array, default: () => [] },
   current: { type: Number, default: 0 },
   total: { type: Number, default: 0 }
 })
 const emit = defineEmits(["click"])
 
-const MAX_MEMBERS = 4
+// 稿上右块内是 5 枚成员圆 + 末尾一枚白色「…」气泡
+const MAX_MEMBERS = 5
 
-/** 稿上最多 4 个头像 + 「···」；成员信息缺失时按已报名人数占位，避免整块空白 */
+/** 成员信息缺失时按已报名人数占位，避免整块空白 */
 const memberSlots = computed(() => {
   const list = (props.members || []).filter(Boolean)
   if (list.length) {
@@ -81,40 +88,30 @@ const memberSlots = computed(() => {
   return new Array(n).fill('')
 })
 
-/** 成员多于 4 个（或人数未填满但已有人在看）时显示省略号 */
+/** 成员多于 5 个（或人数未填满但已有人在看）时显示省略气泡 */
 const hasMoreThanSlots = computed(() => (props.members || []).filter(Boolean).length > MAX_MEMBERS || (!props.members.length && props.current > MAX_MEMBERS))
 
 /** 设计稿里技能是一行灰字「·善写剧本 配音者优先」 */
 const skillText = computed(() => {
+  if (props.skillTextRaw) return props.skillTextRaw
   const list = (props.skills || []).filter(Boolean)
   return list.length ? list.join(' ') : '技能不限'
 })
 </script>
 
 <style scoped>
+/* ---------- 通用 ---------- */
 .proj-card {
   position: relative;
   background: #fff;
-  border-radius: 30rpx;
-  padding: 22rpx 22rpx 26rpx;
-  /* 16rpx 左右外边距给阴影留位置（外层 scroll-view 内容层会横向裁切），
-     列表容器同时把内边距减 16rpx，视觉左右边距保持不变 */
-  margin: 0 16rpx 22rpx;
-  /* 设计稿（tif/项目.tif 2x 实测）：阴影只落在右、下两侧，左/上为 0。
-     右缘剖面：边缘最暗 203/255（α≈0.20），向外约 10px 衰减到 255；
-     下缘剖面：最暗 205/255（α≈0.20），同样约 10px 衰减。
-     反解得 offset≈4px / 3.6px、blur≈7px → 10rpx 7rpx 12rpx rgba(0,0,0,.22)。
-     注意：光有 box-shadow 不够——外层 scroll-view 内容层是 overflow-x:hidden，
-     卡片贴边时右侧阴影会被裁掉，所以列表容器内边距减 16rpx、卡片自己加 16rpx margin。 */
-  box-shadow: 10rpx 7rpx 12rpx rgba(0, 0, 0, 0.22);
+  /* 稿上 outerShdw：dx=4.21 dy=4.21 blur=7.94 alpha=0.20（深色）→ 8rpx 8rpx 15rpx */
+  box-shadow: 8rpx 8rpx 15rpx rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
 }
 .proj-card:active { opacity: .94; }
 
-/* 头部 */
 .head { display: flex; align-items: flex-start; }
 .avatar-bg {
-  width: 72rpx;
-  height: 72rpx;
   border-radius: 50%;
   background: #4e6f66;
   display: flex;
@@ -122,95 +119,129 @@ const skillText = computed(() => {
   justify-content: center;
   flex-shrink: 0;
 }
-.avatar-txt { font-size: 28rpx; color: #fff; }
-.head-info { flex: 1; min-width: 0; margin-left: 16rpx; padding-top: 2rpx; }
+.avatar-txt { color: #fff; }
+.head-info { flex: 1; min-width: 0; }
 .name-row { display: flex; align-items: baseline; flex-wrap: wrap; }
-.name {
-  font-size: 30rpx;
-  color: #2e2e2e;
-  font-weight: 700;
-}
-.name-sub { font-size: 24rpx; color: #6b6b6b; margin-left: 6rpx; }
+.name { font-weight: 700; color: #3a3a3a; }
+.name-sub { font-weight: 700; color: #747474; }
 .quote {
   display: block;
-  margin-top: 6rpx;
-  font-size: 22rpx;
-  color: #8a8a8a;
-  line-height: 1.4;
+  color: #3a3a3a;
+  line-height: 1.5;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* 右上角「更多」三点 */
-.kebab { width: 40rpx; display: flex; flex-direction: column; align-items: center; padding-top: 10rpx; }
-.dot { width: 8rpx; height: 8rpx; border-radius: 50%; background: #b3b3b3; margin-bottom: 8rpx; }
-
-/* 两块信息区：左右等宽，右侧留出箭头位置（稿上箭头在两块之外） */
-.body { display: flex; align-items: stretch; margin-top: 18rpx; padding-right: 52rpx; }
+.body { display: flex; align-items: stretch; }
 .block {
   background: #e6eeed;
-  border-radius: 16rpx;
-  padding: 18rpx 20rpx;
-  min-height: 150rpx;
   box-sizing: border-box;
 }
-.block-req { flex: 1; margin-right: 12rpx; }
+.block-req { flex: 1; }
 .block-mem { flex: 1; }
 .block-title {
   display: block;
-  font-size: 19rpx;
-  color: #3c3c3c;
-  font-weight: 700;
-  margin-bottom: 10rpx;
+  color: #595959;
+  line-height: 1.5;
   white-space: nowrap;
 }
-.req-line { display: flex; align-items: center; margin-bottom: 4rpx; white-space: nowrap; }
-.req-t { font-size: 18rpx; color: #4a4a4a; line-height: 1.6; white-space: nowrap; }
+.req-line { display: flex; align-items: center; white-space: nowrap; }
+.req-t { color: #404040; line-height: 1.5; white-space: nowrap; }
 .ellipsis { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+/* 稿上两枚描边胶囊：圆角 6.7，描边 #77BBAC 0.5 */
 .chip {
-  margin-left: 8rpx;
-  padding: 0 10rpx;
-  border: 1rpx solid #9cc3b6;
-  border-radius: 20rpx;
-  font-size: 18rpx;
-  color: #4f8a78;
-  line-height: 28rpx;
+  border: 1rpx solid #77bbac;
+  color: #77bbac;
   flex-shrink: 0;
 }
 
-/* 招募成员 */
-.members { display: flex; align-items: center; margin-top: 10rpx; }
+.members { display: flex; align-items: center; }
 .m-avatar {
-  width: 56rpx;
-  height: 56rpx;
   border-radius: 50%;
-  background: #cfded9;
-  border: 3rpx solid #fbfdfc;
+  background: #4e6f66;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: -16rpx;
+  flex-shrink: 0;
 }
-.m-txt { font-size: 22rpx; color: #4e6f66; }
+.m-txt { color: #fff; }
 .m-more {
-  width: 54rpx;
-  height: 54rpx;
   border-radius: 50%;
-  background: #f7fbfa;
+  background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-left: 24rpx;
+  flex-shrink: 0;
 }
-.m-more-t { font-size: 24rpx; color: #8a9a96; letter-spacing: -2rpx; }
+.m-more-t { color: #4e6f66; line-height: 1; }
 
-/* 右下箭头 */
-.arrow {
-  position: absolute;
-  right: 24rpx;
-  bottom: 30rpx;
-  width: 36rpx;
-  height: 30rpx;
+/* ---------- slide1：项目中心列表卡 ---------- */
+/* 卡 343.2×154，圆角 11.25，左内边距 13.5，信息块右留 43.3（给右下箭头） */
+/* 卡 343.2×154（= 屏宽 402 左右各留 29.4），圆角 11.25，左内边距 13.5，信息块右留 43.3（给右下箭头） */
+.v-list {
+  min-height: 287rpx;
+  border-radius: 21rpx;
+  padding: 21rpx 81rpx 23rpx 25rpx;
+  margin: 0 16rpx 22rpx;
 }
+.v-list .avatar-bg { width: 73rpx; height: 73rpx; }
+.v-list .avatar-txt { font-size: 28rpx; }
+.v-list .head-info { margin-left: 15rpx; }
+.v-list .name { font-size: 30rpx; }
+.v-list .name-sub { font-size: 22rpx; margin-left: 4rpx; }
+.v-list .quote { margin-top: 5rpx; font-size: 15rpx; }
+.v-list .kebab { width: 35rpx; height: 35rpx; flex-shrink: 0; margin-top: 14rpx; }
+.v-list .body { margin-top: 20rpx; }
+.v-list .block { border-radius: 12rpx; padding: 8rpx 10rpx; height: 151rpx; }
+.v-list .block-req { margin-right: 13rpx; }
+.v-list .block-title { font-size: 18rpx; margin-bottom: 2rpx; }
+.v-list .req-line { margin-top: 2rpx; }
+.v-list .req-t { font-size: 15rpx; }
+.v-list .chip { margin-left: 4rpx; padding: 0 6rpx; border-radius: 13rpx; font-size: 15rpx; line-height: 25rpx; }
+.v-list .members { margin-top: 30rpx; }
+.v-list .m-avatar { width: 54rpx; height: 54rpx; margin-right: -20rpx; }
+.v-list .m-txt { font-size: 20rpx; }
+.v-list .m-more { width: 36rpx; height: 36rpx; margin-left: 13rpx; }
+.v-list .m-more-t { font-size: 30rpx; }
+.v-list .corner { position: absolute; right: 18rpx; bottom: 16rpx; width: 51rpx; height: 51rpx; }
+
+/* ---------- slide2：我的项目卡 ---------- */
+/* 卡 355.6×159.6，圆角 11.65，左内边距 14，右上日期，右下「⋯」 */
+.v-mine {
+  width: 663rpx;
+  max-width: 100%;
+  min-height: 298rpx;
+  border-radius: 22rpx;
+  padding: 22rpx 22rpx 24rpx 26rpx;
+  margin: 0 auto 20rpx;
+}
+/* 稿：两块信息区各 143.7 宽、间距 7.3，右缘止于 333.6（右侧 33px 留给右下「⋯」） */
+.v-mine .body { padding-right: 66rpx; }
+.v-mine .avatar-bg { width: 75rpx; height: 75rpx; }
+.v-mine .avatar-txt { font-size: 28rpx; }
+.v-mine .head-info { margin-left: 16rpx; }
+.v-mine .name { font-size: 30rpx; }
+.v-mine .name-sub { font-size: 22rpx; margin-left: 4rpx; }
+.v-mine .quote { margin-top: 5rpx; font-size: 15rpx; }
+.v-mine .head-date {
+  flex-shrink: 0;
+  font-size: 18rpx;
+  color: #808080;
+  line-height: 1;
+  margin-top: 8rpx;
+}
+.v-mine .body { margin-top: 20rpx; }
+.v-mine .block { border-radius: 12rpx; padding: 8rpx 10rpx; height: 156rpx; }
+.v-mine .block-req { margin-right: 13rpx; }
+.v-mine .block-title { font-size: 18rpx; margin-bottom: 2rpx; }
+.v-mine .req-line { margin-top: 2rpx; }
+.v-mine .req-t { font-size: 15rpx; }
+.v-mine .chip { margin-left: 4rpx; padding: 0 6rpx; border-radius: 13rpx; font-size: 15rpx; line-height: 25rpx; }
+.v-mine .members { margin-top: 32rpx; }
+.v-mine .m-avatar { width: 56rpx; height: 56rpx; margin-right: -20rpx; }
+.v-mine .m-txt { font-size: 20rpx; }
+.v-mine .m-more { width: 37rpx; height: 37rpx; margin-left: 13rpx; }
+.v-mine .m-more-t { font-size: 30rpx; }
+.v-mine .corner { position: absolute; right: 18rpx; bottom: 22rpx; width: 36rpx; height: 36rpx; }
 </style>

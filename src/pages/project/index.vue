@@ -1,14 +1,14 @@
 <template>
-  <!-- 项目中心（一级页）—— 视觉对齐 tif/项目.tif -->
-  <view class="page">
+  <!-- 项目中心（一级页）—— 视觉对齐 tif/项目.pptm slide1 -->
+  <view class="page" :style="{ '--sbh': statusBarHeight + 'px' }">
     <!-- 顶部导航：清单（进入我的项目管理） + 标题 + 搜索 -->
     <view class="nav">
       <view class="nav-side" @click="goManage">
-        <image class="nav-icon" src="/static/icons/icon-doc-list.svg" mode="aspectFit" />
+        <image class="nav-icon" src="/static/icons/icon-doc-grey.svg" mode="aspectFit" />
       </view>
       <text class="nav-title">项目中心</text>
       <view class="nav-side right" @click="goSearch">
-        <image class="nav-icon" src="/static/icons/icon-search-line.svg" mode="aspectFit" />
+        <image class="nav-icon" src="/static/icons/icon-search-grey.svg" mode="aspectFit" />
       </view>
     </view>
 
@@ -33,7 +33,7 @@
         </view>
       </scroll-view>
       <view class="funnel" @click="showFilter = true">
-        <image class="funnel-icon" src="/static/icons/icon-funnel.svg" mode="aspectFit" />
+        <image class="funnel-icon" src="/static/icons/icon-funnel-grey.svg" mode="aspectFit" />
       </view>
     </view>
 
@@ -49,6 +49,7 @@
       <ProjectCard
         v-for="item in list"
         :key="item.id"
+        variant="list"
         :owner-name="item.ownerName"
         :owner-level="item.ownerLevel"
         :title="item.title"
@@ -58,6 +59,7 @@
         :level-req="item.levelReq"
         :experience-req="item.experienceReq"
         :skills="item.skills"
+        :skill-text-raw="item.skillTextRaw"
         :members="item.members"
         :current="item.current"
         :total="item.total"
@@ -146,20 +148,24 @@ import { mockProjects } from '@/mock/index.js'
 
 const PAGE_SIZE = 10
 
+const statusBarHeight = (uni.getSystemInfoSync().statusBarHeight || 0)
+
 /**
- * 一级分类（稿上的 5 枚胶囊）
+ * 一级分类（稿上 slide1 的 6 枚胶囊）
  * 后端 5.2 没有「热度/类别」字段：
  *   - 综合：不传参
  *   - 热度最高：前端按已加载数据的 memberCount 倒序（真实字段）
  *   - 新手友好：前端按 required_project_count === 0 过滤（真实字段）
  *   - 纯娱乐 / 大佬带队：无对应字段（见 docs/前端联调对照.md 第 269 行），点击先提示
+ *   - 最新发布：前端按 createdAt 倒序
  */
 const filterTags = [
   { key: "all", label: "综合" },
   { key: "hot", label: "热度最高" },
   { key: "newbie", label: "新手友好" },
   { key: "fun", label: "纯娱乐" },
-  { key: "veteran", label: "大佬带队" }
+  { key: "veteran", label: "大佬带队" },
+  { key: "latest", label: "最新发布" }
 ]
 const activePill = ref("all")
 
@@ -190,13 +196,13 @@ function peopleLimit() {
   return null
 }
 
-/** 本地排序（综合排序保持后端返回顺序；热度最高按成员数倒序） */
+/** 本地排序（综合排序保持后端返回顺序；热度最高按成员数倒序；最新发布按创建时间倒序） */
 function sortList(arr) {
   const copy = arr.slice()
   if (activePill.value === "hot") {
     return copy.sort((a, b) => b.memberCount - a.memberCount)
   }
-  if (activeSort.value === "最新") {
+  if (activePill.value === "latest" || activeSort.value === "最新") {
     return copy.sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')))
   }
   if (activeSort.value === "即将截止") {
@@ -228,6 +234,7 @@ function toCard(raw) {
     experienceReq: p.requiredProjectCount > 0 ? (p.requiredProjectCount + '次共创经历') : '无共创经历',
     requiredCount: p.requiredProjectCount || 0,
     skills: skillNamesOf(p.requiredSkills, skillOptions.value), // 对象数组自带名字；ID 数组查 2.8 字典
+    skillTextRaw: '',
     members: p.members || [],
     current: p.current || 0,
     total: p.total || 0,
@@ -246,10 +253,11 @@ function mockProjectList() {
     deadline: m.deadline || '待定',
     deadlineRaw: m.deadline || '',
     intro: m.intro || '',
-    topic: (m.skills && m.skills[0]) || '不限',
-    levelReq: 'Lv.1',
-    experienceReq: '无共创经历',
-    requiredCount: 0,
+    topic: m.topic || (m.skills && m.skills[0]) || '不限',
+    levelReq: m.levelReq || 'Lv.1',
+    experienceReq: m.experienceReq || '无共创经历',
+    skillTextRaw: m.skillText || '',
+    requiredCount: m.coopCount || 0,
     skills: m.skills || [],
     members: m.members || [],
     current: m.current || 0,
@@ -273,7 +281,8 @@ async function loadList(reset = false) {
     if (selectedSkills.value.length) params.skill_id = selectedSkills.value[0]
     const res = await withFallback(() => getProjects(params), mockProjectList, 'project/list')
     const p = unwrapPage(res.data)
-    let items = p.list.map(toCard)
+    // 回退数据（mockProjectList）已经是卡片 props 形状，再过 toCard 会被 normalizeProject 洗掉
+    let items = res.isFallback ? p.list.slice() : p.list.map(toCard)
     const limit = peopleLimit()
     if (limit) items = items.filter((it) => it.memberCount >= limit[0] && it.memberCount <= limit[1])
     if (activePill.value === "newbie") items = items.filter((it) => !it.requiredCount)
@@ -345,43 +354,72 @@ function goManage() { uni.navigateTo({ url: "/pages/project/manage" }) }
 function goSearch() { uni.navigateTo({ url: "/pages/search/index" }) }
 </script>
 <style scoped>
-.page { --page-gutter: 32rpx; background: #fff; height: 100vh; display: flex; flex-direction: column; }
+.page { --page-gutter: 53rpx; background: #fff; height: 100vh; display: flex; flex-direction: column; position: relative; }
 
-/* 导航 */
+/* 导航：稿上导航条 83.3px（= 状态栏 35 + 内容 48.3），标题 17.9px（33rpx）#262626 居中 */
 .nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12rpx 28rpx;
-  padding-top: calc(env(safe-area-inset-top) + 12rpx);
+  /* 稿上导航条总高 83.3px（155rpx）含状态栏：真机 sbh 吃掉多少就减多少，
+     headless 无状态栏时仍是 83.3px，量出来的坐标可直接和稿对比 */
+  height: calc(155rpx - var(--sbh, 0px));
+  padding: 0 52rpx;
+  box-sizing: border-box;
   background: #fff;
+  flex-shrink: 0;
 }
-.nav-side { width: 80rpx; height: 64rpx; display: flex; align-items: center; }
+.nav-side { width: 60rpx; height: 60rpx; display: flex; align-items: center; }
 .nav-side.right { justify-content: flex-end; }
-.nav-icon { width: 44rpx; height: 44rpx; }
+.nav-icon { width: 33rpx; height: 33rpx; }
 .nav-title {
-  font-size: 32rpx;
-  color: #1f1f1f;
-  font-weight: 700;
+  font-size: 33rpx;
+  color: #262626;
+  font-weight: 600;
 }
 
-/* 分类胶囊 */
-.filter-bar { display: flex; align-items: center; padding: 16rpx 0 12rpx var(--page-gutter); background: #fff; }
-.demo-row { display: flex; justify-content: flex-end; padding: 0 28rpx; }
-.pill-scroll { flex: 1; white-space: nowrap; overflow: hidden; }
+/* 分类胶囊：稿上 roundRect 高 21.5px（40rpx）、圆角 3.8px（7rpx）、底 #F2F2F2、字 11.9px（22rpx）
+   首枚左缘 x29.8px（56rpx），枚间距 4.5px（8rpx），顶距导航 16px（30rpx） */
+/* 稿：导航底 83.3 → 胶囊顶 99.3（间距 16px=30rpx）→ 胶囊底 120.8 → 首卡顶 133.6（12.8px=24rpx） */
+.filter-bar { display: flex; align-items: flex-start; padding: 24rpx 0 0 56rpx; background: #fff; flex-shrink: 0; }
+/* 演示数据灰标：稿上没有它，绝对定位浮在导航右侧，不占纵向流式空间 */
+.demo-row { position: absolute; right: 24rpx; top: 100rpx; z-index: 20; }
+.pill-scroll { flex: 1; height: 40rpx; white-space: nowrap; overflow: hidden; }
 .pill-wrap { display: inline-flex; align-items: center; }
-.pill { background: #f1f1f1; border-radius: 14rpx; padding: 8rpx 22rpx; margin-right: 10rpx; white-space: nowrap; }
-.pill.active { background: #e4e9e7; }
-.pill-t { font-size: 22rpx; color: #8a8a8a; white-space: nowrap; }
-.pill.active .pill-t { color: #2e2e2e; font-weight: 600; }
-.funnel { width: 60rpx; height: 60rpx; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.funnel-icon { width: 34rpx; height: 34rpx; }
+.pill {
+  height: 40rpx;
+  border-radius: 7rpx;
+  padding: 0 14rpx;
+  margin-right: 8rpx;
+  background: #f2f2f2;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+.pill-t { font-size: 22rpx; color: #808080; white-space: nowrap; line-height: 1; }
+.pill.active .pill-t { color: #404040; font-weight: 600; }
+/* 漏斗：稿上图标 17.7px（33rpx），背后垫一层白色渐隐遮罩，让胶囊滚到边缘时不与图标重叠 */
+.funnel {
+  width: 120rpx;
+  height: 40rpx;
+  display: flex;
+  align-items: center;
+  /* 稿：遮罩 64.2px（120rpx）@x337.8，图标 17.7px 落在 x353.7 / y100.6（遮罩内左缩进 16px=30rpx） */
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 9rpx 0 0 30rpx;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, #fff 20%);
+}
+.funnel-icon { width: 33rpx; height: 33rpx; }
 
-/* 列表 */
+/* 列表：胶囊底 120.8 → 首卡顶 133.6，间距 12.8px（24rpx） */
 /* 左右各让出 16rpx：uni 的 scroll-view 内容层是 overflow-x:hidden，
    卡片贴着内容区边缘时右侧阴影会被裁掉。卡片自己补回 16rpx margin，
    视觉位置仍与上面胶囊栏对齐（净内边距 = --page-gutter）。 */
-.list-scroll { flex: 1; padding: 8rpx calc(var(--page-gutter) - 16rpx) 24rpx; box-sizing: border-box; overflow: hidden; }
+.list-scroll { flex: 1; padding: 30rpx calc(var(--page-gutter) - 16rpx) 24rpx; box-sizing: border-box; overflow: hidden; }
 .list-empty { text-align: center; padding: 80rpx 20rpx; }
 .empty-text { font-size: 26rpx; color: #bbb; }
 

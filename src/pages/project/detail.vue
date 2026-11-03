@@ -1,9 +1,11 @@
 <template>
-  <!-- 项目招募详情页（二级页） -->
-  <view class="page">
+  <!-- 项目招募详情页（二级页）—— 按 tif/项目.pptm slide3 / slide4 -->
+  <view class="page" :style="{ '--sbh': statusBarHeight + 'px' }">
     <view class="nav">
-      <view class="nav-back" @click="goBack"><text class="back-icon">←</text></view>
-      <text class="nav-title">{{ ownerName }} 发起的共创项目招募</text>
+      <view class="nav-back" @click="goBack">
+        <image class="nav-back-ic" src="/static/icons/icon-arrow-left-grey.svg" mode="aspectFit" />
+      </view>
+      <text class="nav-title">{{ ownerName }}发起的共创项目招募</text>
       <view class="nav-right"></view>
     </view>
 
@@ -11,49 +13,53 @@
     <DemoBadge :show="isDemo" position="top-right" />
 
     <scroll-view scroll-y class="body-scroll">
-      <!-- 发起人卡片 -->
-      <view class="owner-card">
+      <!-- 发起人 -->
+      <text class="sec-label">发起人</text>
+      <view class="card owner-card">
         <view class="owner-avatar" @click="goProfile"><text class="owner-avatar-t">{{ initial(ownerName) }}</text></view>
-        <view class="owner-info">
+        <view class="owner-main">
           <view class="owner-name-row">
             <text class="owner-name">{{ ownerName }}</text>
-            <text class="owner-lv">LV.{{ ownerLevel }}</text>
+            <view class="lv-pill"><text class="lv-t">Lv.{{ ownerLevel }}</text></view>
           </view>
-          <text class="owner-stats">共创 {{ coopCount }} 次</text>
+          <text class="owner-stats">共创经历 <text class="num">{{ coopCount }}</text> 次 发起共创 <text class="num">{{ publishedCount }}</text> 次</text>
           <view class="owner-skills">
-            <text v-for="(s, i) in skills" :key="i" class="skill-tag">{{ s }}</text>
+            <text class="skill-label">技能</text>
+            <view v-for="(s, i) in skills" :key="i" class="skill-pill"><text class="skill-pill-t">{{ s }}</text></view>
           </view>
         </view>
-        <view class="contact-btn" @click="contact"><text class="contact-t">私信</text></view>
+        <image class="owner-arrow" src="/static/icons/icon-arrow-right-grey.svg" mode="aspectFit" />
       </view>
 
-      <!-- 招募要求清单 -->
-      <view class="section">
-        <text class="sec-title">招募要求</text>
-        <view class="req-item" v-for="(r, i) in requirements" :key="i">
-          <text class="req-text">{{ r.label }}</text>
-          <!-- 后端未返回「当前用户是否符合」的判断（无该接口），故 ok 为空时不显示徽标 -->
-          <view v-if="typeof r.ok === 'boolean'" class="req-status" :class="r.ok ? 'ok' : 'no'">
-            <text class="req-status-t">{{ r.ok ? "已符合" : "未符合" }}</text>
+      <!-- 简介 -->
+      <text class="sec-label">简介</text>
+      <view class="card intro-card">
+        <text class="intro-t">“{{ intro }}”</text>
+      </view>
+
+      <!-- 项目要求 -->
+      <text class="sec-label">项目要求</text>
+      <view class="card req-card" @click="goRequire">
+        <text class="req-t">点击查看</text>
+        <image class="req-arrow" src="/static/icons/icon-arrow-right-grey.svg" mode="aspectFit" />
+      </view>
+
+      <!-- 成员 -->
+      <text class="sec-label">成员（{{ total ? current + '/' + total : current }}）</text>
+      <view class="card member-card">
+        <view class="member-list">
+          <view v-for="(m, i) in memberAvatars" :key="m.id || i" class="member-col">
+            <view class="member-a"><text class="member-a-t">{{ initial(m.nickname) }}</text></view>
+            <text class="member-name">{{ m.nickname }}</text>
           </view>
+          <view class="member-more"><text class="member-more-t">…</text></view>
         </view>
       </view>
 
-      <!-- 成员预览 -->
-      <view class="section">
-        <text class="sec-title">成员</text>
-        <view class="member-row">
-          <view v-for="(m, i) in memberAvatars" :key="m.id || i" class="member-a">
-            <text class="member-a-t">{{ initial(m.nickname) }}</text>
-          </view>
-          <view v-if="!total || current < total" class="member-a more"><text class="member-a-t">+</text></view>
-        </view>
-        <text class="member-count">成员（{{ total ? current + '/' + total : current }}）</text>
-      </view>
-
-      <view class="section">
-        <text class="sec-title">招募截止日期</text>
-        <text class="deadline">{{ deadline }}</text>
+      <!-- 截止招募时间 -->
+      <text class="sec-label">截止招募时间</text>
+      <view class="card date-card">
+        <text class="date-t">{{ deadline }}</text>
       </view>
       <view class="bottom-space"></view>
     </scroll-view>
@@ -68,7 +74,7 @@
       >
         <text class="apply-btn-t">{{ applied ? "已申请" : (full ? "已招满" : "申请加入") }}</text>
       </view>
-      <view v-if="expired" class="apply-btn disabled"><text class="apply-btn-t">已截止</text></view>
+      <view v-else class="apply-btn disabled"><text class="apply-btn-t">已截止</text></view>
     </view>
 
     <!-- 申请弹窗 -->
@@ -95,6 +101,8 @@ import { normalizeProject, skillNamesOf } from '@/api/adapter.js'
 import { withFallback } from '@/utils/fallback.js'
 import nav from '@/utils/nav.js'
 
+const statusBarHeight = (uni.getSystemInfoSync().statusBarHeight || 0)
+
 // 当前项目 id（由路由参数 id 传入）
 const projectId = ref(null)
 
@@ -102,6 +110,8 @@ const ownerName = ref("")
 const ownerLevel = ref(0)
 const ownerId = ref(null)
 const coopCount = ref(0)
+const publishedCount = ref(0)
+const intro = ref("")
 const skills = ref([])
 const requirements = ref([])
 const memberAvatars = ref([])
@@ -147,10 +157,12 @@ function applyDetail(p, dict) {
   ownerId.value = p.ownerId || null
   ownerLevel.value = p.ownerLevel || 0
   coopCount.value = p.coopCount || 0
+  publishedCount.value = p.publishedCount || 0
   current.value = p.current || 0
   total.value = p.total || 0
   deadline.value = p.deadlineText || p.deadline || ''
   projectStatus.value = p.status || ''
+  intro.value = p.intro || p.description || ''
 
   // 技能标签：优先队长技能，其次项目的 required_skills，最后兜底原字段
   const ownerSkills = p.ownerInfo && p.ownerInfo.raw && Array.isArray(p.ownerInfo.raw.skills)
@@ -197,7 +209,7 @@ const showApplyBtn = computed(() => !expired.value)
 function initial(name) { return (name || '?').charAt(0) }
 function goBack() { uni.navigateBack() }
 function goProfile() { if (ownerId.value) nav.goDetail('user', ownerId.value) }
-function contact() { if (ownerId.value) nav.goDetail('chat', ownerId.value) }
+function goRequire() { uni.navigateTo({ url: '/pages/project/require?id=' + projectId.value }) }
 
 function openApply() {
   if (applied.value || full.value || expired.value) return
@@ -221,55 +233,164 @@ async function submitApply() {
 </script>
 
 <style scoped>
-.page { background: #f5f6fa; height: 100vh; display: flex; flex-direction: column; }
-.nav { display: flex; align-items: center; justify-content: space-between; padding: 20rpx 24rpx; padding-top: calc(env(safe-area-inset-top) + 20rpx); background: #fff; }
-.nav-back { width: 70rpx; height: 60rpx; display: flex; align-items: center; }
-.back-icon { font-size: 40rpx; color: #333; }
-.nav-title { flex: 1; font-size: 30rpx; font-weight: 700; color: #333; text-align: center; }
-.nav-right { width: 70rpx; }
-.body-scroll { flex: 1; padding: 20rpx; box-sizing: border-box; }
-.owner-card { background: #fff; border-radius: 20rpx; padding: 26rpx; display: flex; align-items: flex-start; }
-.owner-avatar { width: 96rpx; height: 96rpx; border-radius: 50%; background: linear-gradient(135deg, #f0c7bb, #d9a29e); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.owner-avatar-t { font-size: 36rpx; color: #fff; }
-.owner-info { flex: 1; min-width: 0; margin-left: 20rpx; }
+/* 稿：402×874。导航 83.3px；「发起人」标签顶 87.7；发起人卡 355.6×99.4 @x22.8；
+   标签到卡固定 32.7px（61rpx），卡到下一个标签 10~12.5px（21rpx）；
+   底部 CTA 177.2×69.3 圆角 34.6px @y710.8 */
+.page { background: #fff; height: 100vh; display: flex; flex-direction: column; }
+
+.nav {
+  /* 稿上导航条总高 83.3px（155rpx）含状态栏：真机 sbh 吃掉多少就减多少，
+     headless 无状态栏时仍是 83.3px，量出来的坐标可直接和稿对比 */
+  height: calc(155rpx - var(--sbh, 0px));
+  padding: 0 52rpx;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  flex-shrink: 0;
+}
+.nav-back { width: 60rpx; height: 60rpx; display: flex; align-items: center; }
+.nav-back-ic { width: 47rpx; height: 47rpx; }
+/* 标题 17.9px（33rpx），色 #262626，单行省略 */
+.nav-title { flex: 1; font-size: 33rpx; color: #262626; font-weight: 600; text-align: center; margin: 0 8rpx; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.nav-right { width: 60rpx; }
+
+.body-scroll { flex: 1; min-height: 0; padding: 5rpx 0 0; box-sizing: border-box; overflow: hidden; }
+
+/* 标签：17.9px（33rpx）粗体 #3A3A3A，左缘 21.4px（40rpx），到下方卡 32.7px（61rpx） */
+.sec-label {
+  display: block;
+  font-size: 33rpx;
+  line-height: 1;
+  color: #3a3a3a;
+  font-weight: 700;
+  margin: 21rpx 0 28rpx 40rpx;
+}
+.body-scroll .sec-label:first-child { margin-top: 4rpx; }
+
+/* 卡片：白底 + 稿上 outerShdw dx/dy 4.21 blur 7.94 alpha .20 */
+.card {
+  background: #fff;
+  margin: 0 43rpx;
+  box-shadow: 8rpx 8rpx 15rpx rgba(0, 0, 0, 0.2);
+}
+
+/* 发起人卡 99.4px（185rpx），圆角 7.25px（14rpx） */
+.owner-card { position: relative; height: 185rpx; border-radius: 14rpx; padding: 27rpx 0 0 32rpx; box-sizing: border-box; }
+.owner-avatar {
+  width: 125rpx;
+  height: 125rpx;
+  border-radius: 50%;
+  background: #4e6f66;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.owner-avatar-t { font-size: 42rpx; color: #fff; }
+.owner-main { position: absolute; left: 156rpx; top: 24rpx; right: 96rpx; }
 .owner-name-row { display: flex; align-items: center; }
-.owner-name { font-size: 32rpx; color: #333; font-weight: 600; }
-.owner-lv { font-size: 22rpx; color: #d9a23e; background: #fff4e0; padding: 2rpx 12rpx; border-radius: 10rpx; margin-left: 12rpx; }
-.owner-stats { font-size: 24rpx; color: #999; margin-top: 8rpx; display: block; }
-.owner-skills { display: flex; flex-wrap: wrap; margin-top: 12rpx; gap: 10rpx; }
-.skill-tag { font-size: 22rpx; color: #d98983; background: #fdece8; border-radius: 10rpx; padding: 6rpx 14rpx; }
-.contact-btn { padding: 12rpx 28rpx; border: 2rpx solid #d9a29e; border-radius: 30rpx; flex-shrink: 0; }
-.contact-t { font-size: 26rpx; color: #d98983; }
-.section { background: #fff; border-radius: 20rpx; padding: 26rpx; margin-top: 20rpx; }
-.sec-title { font-size: 28rpx; color: #333; font-weight: 600; display: block; margin-bottom: 16rpx; }
-.req-item { display: flex; align-items: center; justify-content: space-between; padding: 18rpx 0; border-bottom: 1rpx solid #f3f4f6; }
-.req-item:last-child { border-bottom: none; }
-.req-text { font-size: 28rpx; color: #555; }
-.req-status { padding: 4rpx 18rpx; border-radius: 20rpx; }
-.req-status.ok { background: #e7f7ec; }
-.req-status.no { background: #f1f1f1; }
-.req-status-t { font-size: 22rpx; color: #999; }
-.req-status.ok .req-status-t { color: #34c759; }
-.member-row { display: flex; }
-.member-a { width: 64rpx; height: 64rpx; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; margin-right: -10rpx; border: 3rpx solid #fff; }
-.member-a.more { background: #f7f3ee; }
-.member-a-t { font-size: 26rpx; color: #888; }
-.member-count { font-size: 24rpx; color: #999; display: block; margin-top: 16rpx; }
-.deadline { font-size: 28rpx; color: #666; }
-.bottom-space { height: 160rpx; }
-.footer { padding: 16rpx 24rpx; padding-bottom: calc(16rpx + env(safe-area-inset-bottom)); background: #fff; border-top: 1rpx solid #f0f0f0; }
-.apply-btn { height: 88rpx; border-radius: 44rpx; background: #d9a29e; display: flex; align-items: center; justify-content: center; }
+/* 名字 19.8px（37rpx）粗体 #3A3A3A */
+.owner-name { font-size: 37rpx; color: #3a3a3a; font-weight: 700; line-height: 1; }
+/* Lv 胶囊：37.8×16.5px（70×31rpx），描边 #77BBAC 1px，字 9.9px（18rpx） */
+.lv-pill {
+  height: 31rpx;
+  border: 1rpx solid #77bbac;
+  border-radius: 15rpx;
+  padding: 0 10rpx;
+  margin-left: 14rpx;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+.lv-t { font-size: 18rpx; color: #77bbac; line-height: 1; }
+/* 共创经历 11.9px（22rpx）灰，数字 13.9px（26rpx） */
+.owner-stats { display: block; font-size: 22rpx; color: #3a3a3a; margin-top: 10rpx; }
+.owner-stats .num { font-size: 26rpx; }
+.owner-skills { display: flex; align-items: center; margin-top: 10rpx; }
+.skill-label { font-size: 22rpx; color: #3a3a3a; margin-right: 8rpx; }
+/* 技能胶囊：40×18.2px（75×34rpx），底 #E6EEED，字 11.9px（22rpx）#747474 */
+.skill-pill {
+  height: 34rpx;
+  background: #e6eeed;
+  border-radius: 17rpx;
+  padding: 0 14rpx;
+  margin-right: 8rpx;
+  display: flex;
+  align-items: center;
+}
+.skill-pill-t { font-size: 22rpx; color: #747474; line-height: 1; }
+.owner-arrow { position: absolute; right: 42rpx; top: 50%; margin-top: -22rpx; width: 45rpx; height: 45rpx; }
+
+/* 简介卡 67.3px（126rpx），圆角 4.9px（9rpx） */
+.intro-card { border-radius: 9rpx; padding: 14rpx 20rpx; min-height: 126rpx; box-sizing: border-box; }
+/* 正文 13.9px（26rpx）#3A3A3A */
+.intro-t { font-size: 26rpx; color: #3a3a3a; line-height: 1.6; }
+
+/* 项目要求卡 37.9px（71rpx），圆角 6.24px（12rpx） */
+.req-card { position: relative; height: 71rpx; border-radius: 12rpx; display: flex; align-items: center; padding-left: 24rpx; }
+.req-t { font-size: 26rpx; color: #747474; }
+.req-arrow { position: absolute; right: 22rpx; top: 50%; margin-top: -22rpx; width: 44rpx; height: 44rpx; }
+
+/* 成员卡 99.4px（185rpx） */
+.member-card { height: 185rpx; border-radius: 14rpx; padding: 27rpx 20rpx 0 14rpx; box-sizing: border-box; }
+.member-list { display: flex; align-items: flex-start; }
+.member-col { width: 108rpx; display: flex; flex-direction: column; align-items: center; }
+/* 头像 54.2px（101rpx）底 #4E6F66 */
+.member-a {
+  width: 101rpx;
+  height: 101rpx;
+  border-radius: 50%;
+  background: #4e6f66;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.member-a-t { font-size: 34rpx; color: #fff; }
+.member-name { font-size: 18rpx; color: #404040; margin-top: 8rpx; white-space: nowrap; }
+/* 「…」气泡 34.5px（64rpx）底 #E6EEED，字 20.8px（39rpx）#4E6F66 */
+.member-more {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: #e6eeed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 18rpx 0 0 4rpx;
+}
+.member-more-t { font-size: 39rpx; color: #4e6f66; line-height: 1; }
+
+/* 截止时间卡 */
+.date-card { height: 71rpx; border-radius: 12rpx; display: flex; align-items: center; padding-left: 24rpx; }
+.date-t { font-size: 26rpx; color: #747474; }
+
+.bottom-space { height: 40rpx; }
+
+/* 底部 CTA：177.2×69.3px（330×129rpx），圆角 34.6px（65rpx），字 21.8px（41rpx）白 */
+.footer { flex-shrink: 0; display: flex; justify-content: center; padding: 16rpx 0 calc(20rpx + env(safe-area-inset-bottom)); background: #fff; }
+.apply-btn {
+  width: 330rpx;
+  height: 129rpx;
+  border-radius: 65rpx;
+  background: linear-gradient(90deg, #538474 0%, #5ba188 53%, #77bbac 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .apply-btn.disabled { background: #e0e0e0; }
-.apply-btn-t { font-size: 32rpx; color: #fff; }
-.apply-btn.disabled .apply-btn-t { color: #aaa; }
-.apply-mask { position: fixed; left:0; right:0; top:0; bottom:0; background: rgba(0,0,0,0.4); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+.apply-btn-t { font-size: 41rpx; color: #fff; }
+.apply-btn.disabled .apply-btn-t { color: #9a9a9a; }
+
+.apply-mask { position: fixed; left: 0; right: 0; top: 0; bottom: 0; background: rgba(0, 0, 0, 0.4); z-index: 1000; display: flex; align-items: center; justify-content: center; }
 .apply-panel { width: 80%; background: #fff; border-radius: 24rpx; padding: 36rpx 30rpx; }
-.apply-title { font-size: 30rpx; color: #333; text-align: center; display: block; }
-.apply-textarea { width: 100%; height: 160rpx; background: #f5f6fa; border-radius: 16rpx; padding: 20rpx; font-size: 26rpx; margin-top: 24rpx; box-sizing: border-box; }
+.apply-title { font-size: 30rpx; color: #3a3a3a; text-align: center; display: block; }
+.apply-textarea { width: 100%; height: 160rpx; background: #f6f8f7; border-radius: 16rpx; padding: 20rpx; font-size: 26rpx; margin-top: 24rpx; box-sizing: border-box; }
 .apply-actions { display: flex; gap: 20rpx; margin-top: 28rpx; }
 .a-btn { flex: 1; height: 80rpx; border-radius: 40rpx; display: flex; align-items: center; justify-content: center; }
-.a-btn.cancel { background: #f5f6fa; }
-.a-btn.ok { background: #d9a29e; }
-.a-btn-t { font-size: 28rpx; color: #333; }
+.a-btn.cancel { background: #f2f2f2; }
+.a-btn.ok { background: #5ba188; }
+.a-btn-t { font-size: 28rpx; color: #3a3a3a; }
 .a-btn.ok .a-btn-t { color: #fff; }
 </style>
