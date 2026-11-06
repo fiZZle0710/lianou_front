@@ -2,9 +2,10 @@
   <!-- 用户头像组件 - 支持头像框 -->
   <view class="avatar-wrapper" :style="wrapperStyle" @click="handleClick">
     <image :src="current" mode="aspectFill" class="avatar" :style="avatarStyle" @error="onError"></image>
-    <!-- 头像框装饰 -->
-    <view v-if="frame" class="avatar-frame" :style="frameStyle">
-      <image :src="frame" mode="aspectFit" class="frame-image"></image>
+    <!-- 头像框装饰：未指定（或后端未给）时统一套默认白色圆框占位；
+         头像框正式素材到位后，给 frame 传对应 URL 即可覆盖 -->
+    <view v-if="frameSrc" class="avatar-frame" :style="frameStyle">
+      <image :src="frameSrc" mode="aspectFit" class="frame-image"></image>
     </view>
     <!-- 皇冠标识 -->
     <view v-if="showCrown" class="crown-badge">
@@ -44,6 +45,11 @@ const props = defineProps({
     default: false
   }
 })
+
+// 默认白色头像框（占位素材，中心透明圆环；正式头像框素材到位后替换此常量即可）
+const DEFAULT_FRAME = '/static/avatar-frame/white.png'
+// 外部传空串也回落默认值，保证「所有有头像的地方都有头像框」
+const frameSrc = computed(() => props.frame || DEFAULT_FRAME)
 
 const emit = defineEmits(['click'])
 

@@ -132,6 +132,8 @@ function goBack() { uni.navigateBack() }
   height: 71rpx;
   border-radius: 71rpx;
   background: linear-gradient(180deg, #afd5cd 0%, #77bbac 100%);
+  /* 稿上技能胶囊右下深灰阴影（与值卡同组 outerShdw） */
+  box-shadow: 8rpx 8rpx 15rpx rgba(0, 0, 0, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;

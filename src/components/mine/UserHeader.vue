@@ -14,7 +14,7 @@
     <view class="profile">
       <view class="avatar-wrap" @click="openProfile">
         <!-- 头像框：走 UserAvatar 现成的 frame 能力，素材放 /static/avatar-frame/
-             （先用默认金环 default.png 占位，详细样式定了换文件即可） -->
+             （先用默认白色框 white.png 占位，详细样式定了换文件即可） -->
         <UserAvatar :src="userInfo.avatar" :size="58" :frame="userInfo.avatarFrame" />
         <view v-if="userInfo.badge" class="avatar-badge">
           <text class="avatar-badge-t">{{ userInfo.badge }}</text>
@@ -43,7 +43,7 @@ import UserAvatar from '@/components/common/UserAvatar.vue'
 const userInfo = ref({
   avatar: '',
   // 头像框素材；后端给每个用户的框 ID 后，这里换成对应的 URL
-  avatarFrame: '/static/avatar-frame/default.png',
+  avatarFrame: '/static/avatar-frame/white.png',
   // 封面背景图：先留白；以后设为 '/static/xxx.png' 即可换上
   cover: '',
   nickname: '冯大侠',

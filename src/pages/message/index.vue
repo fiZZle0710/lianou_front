@@ -108,7 +108,9 @@ import {
   getGroups,
   getUnreadCounts,
   getOfficialConversation,
-  readAllNotifications
+  readAllNotifications,
+  readConversation,
+  readGroup
 } from '@/api/chat.js'
 import { normalizeConversation, normalizeGroup } from '@/api/adapter.js'
 import { withFallback, unwrapPage } from '@/utils/fallback.js'
@@ -130,7 +132,30 @@ const groupList = ref([])
 // 三角标未读数（9.1 → { official, interaction, todo }）
 const unread = ref({ official: 0, interaction: 0, todo: 0 })
 
-const currentList = computed(() => (activeTab.value === "contact" ? contactList.value : groupList.value))
+// 扫把清理：cleaned=true 后按状态过滤会话（普通会话保留，避免误删聊天）
+const cleaned = ref(false)
+
+/** 是否保留某条消息（仅对两类项目审核消息做清理）
+ *  分类来自会话的 category / audit_status / needs_action 字段：真实接口需要在
+ *  会话里下发这些字段（或由后端按消息类型判定）；演示数据里已带，可直接验证效果。
+ *  未带分类的普通聊天一律保留，避免误删。 */
+function shouldKeep(item) {
+  if (!cleaned.value) return true
+  // 受他人审核：仅保留「审核中」和「未读（右上角小红点）」
+  if (item.category === 'await-others') {
+    return item.auditStatus === 'reviewing' || item.unread > 0
+  }
+  // 要自己审核：仅保留需要操作的对应消息（待审）
+  if (item.category === 'need-my-review') {
+    return item.needsAction === true
+  }
+  return true
+}
+
+const currentList = computed(() => {
+  const base = activeTab.value === "contact" ? contactList.value : groupList.value
+  return cleaned.value ? base.filter(shouldKeep) : base
+})
 
 const emptyText = computed(() => (activeTab.value === "contact" ? "还没有聊天，去广场逛逛吧" : "还没有加入任何群聊"))
 
@@ -152,7 +177,11 @@ function toContactItem(raw) {
     time: c.time || '',
     unread: c.unreadCount || 0,
     avatar: c.avatar || '',
-    muted: !!c.muted
+    muted: !!c.muted,
+    // 扫把清理用的分类：await-others=受他人审核 / need-my-review=要自己审核 / normal=普通会话
+    category: raw.category || 'normal',
+    auditStatus: raw.audit_status || raw.auditStatus || '',
+    needsAction: !!raw.needs_action
   }
 }
 
@@ -168,22 +197,40 @@ function toGroupItem(raw) {
     time: g.time || '',
     unread: g.unreadCount || 0,
     avatar: g.avatar || '',
-    muted: !!g.muted
+    muted: !!g.muted,
+    category: raw.category || 'normal',
+    auditStatus: raw.audit_status || raw.auditStatus || '',
+    needsAction: !!raw.needs_action
   }
 }
 
-/** 回退数据（后端未就绪时页面仍可用）：mockUsers / mockGroups 都是按 id 索引的对象 */
+/** 回退数据（后端未就绪时页面仍可用）：mockUsers / mockGroups 都是按 id 索引的对象。
+ *  返回「接口原始形状」，由 loadList 里的 toContactItem / toGroupItem 统一归一化一次
+ *  （不要再在工厂里调 toContactItem，否则会被二次归一化丢掉 preview / 分类字段）。
+ *  演示模式里混入「受他人审核 / 要自己审核」两类项目消息，供右上角扫把按状态清理演示。 */
 function mockContactList() {
-  return Object.values(mockUsers || {}).map((u) => toContactItem({
-    conversation_id: 'mock-' + u.id,
-    contact: u,
-    last_message: '',
+  const rows = [
+    { u: 1, category: 'await-others',   auditStatus: 'reviewing', needsAction: false, unread: 0, preview: '桂花糕 项目的申请 · 审核中' },
+    { u: 2, category: 'await-others',   auditStatus: 'approved',  needsAction: false, unread: 1, preview: '铁皮青蛙 项目的申请 · 已通过' },
+    { u: 3, category: 'need-my-review', auditStatus: 'pending',   needsAction: true,  unread: 1, preview: '纸鸢 申请加入你的项目' },
+    { u: 4, category: 'await-others',   auditStatus: 'expired',   needsAction: false, unread: 0, preview: '罗大侠 项目的申请 · 已过期' },
+    { u: 5, category: 'await-others',   auditStatus: 'rejected',  needsAction: false, unread: 0, preview: '纸鸢 项目的申请 · 未通过' },
+    { u: 6, category: 'need-my-review', auditStatus: 'approved',  needsAction: false, unread: 0, preview: '桂花糕 的申请已处理' },
+    { u: 7, category: 'normal',         auditStatus: '',          needsAction: false, unread: 0, preview: '暂无消息' }
+  ]
+  return rows.map((r) => ({
+    conversation_id: 'mock-' + r.u,
+    contact: (mockUsers || {})[r.u] || {},
+    last_message: r.preview,
     last_message_at: null,
-    unread_count: 0
+    unread_count: r.unread,
+    category: r.category,
+    audit_status: r.auditStatus,
+    needs_action: r.needsAction
   }))
 }
 function mockGroupList() {
-  return Object.keys(mockGroups || {}).map((gid) => toGroupItem({
+  return Object.keys(mockGroups || {}).map((gid) => ({
     group_id: Number(gid),
     name: '群聊 ' + gid,
     last_message: '',
@@ -254,7 +301,16 @@ function switchTab(type) {
 }
 
 // 点击会话：联系人 → 私聊（传 userId），群聊 → 群聊（传 groupId）
+// 点开详情即清除右上角小红点（未读），变为已读状态
 function goChat(item) {
+  if (item.unread > 0) {
+    item.unread = 0
+    // 真实联调时调后端标记已读；演示模式只清本地，避免无后端时报网络错误
+    if (!isDemo.value) {
+      const task = item.type === 'group' ? readGroup(item.id) : readConversation(item.id)
+      if (task && typeof task.catch === 'function') task.catch(() => {})
+    }
+  }
   if (item.type === "group") {
     nav.goDetail('group', item.id)
   } else if (item.userId) {
@@ -288,15 +344,24 @@ function goTodo() { uni.navigateTo({ url: "/pages/message/interactive?tab=todo" 
 
 function onSearch() { uni.navigateTo({ url: "/pages/search/index?type=user" }) }
 
-/** 一键已读：9.5 批量已读（不传 type = 全部） */
+/** 右上角扫把：按状态清理消息。
+ *  受他人审核 → 仅保留「审核中」+「未读（小红点，点开详情后变已读）」；
+ *  要自己审核 → 仅保留「需要操作」的对应消息；普通聊天不清。 */
 async function onClean() {
+  const before = currentList.value.length
+  cleaned.value = true
   try {
-    await readAllNotifications()
+    // 9.5 批量已读：清掉三宫格未读角标（演示模式无后端，跳过请求避免报错）
+    if (!isDemo.value) await readAllNotifications()
     unread.value = { official: 0, interaction: 0, todo: 0 }
-    uni.showToast({ title: '已全部标记为已读', icon: 'none' })
   } catch (e) {
     // 失败提示由 request.js 统一弹出
   }
+  const removed = Math.max(0, before - currentList.value.length)
+  uni.showToast({
+    title: removed ? `已清理 ${removed} 条消息` : '没有可清理的消息',
+    icon: 'none'
+  })
 }
 </script>
 <style scoped>

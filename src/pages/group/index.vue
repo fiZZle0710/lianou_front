@@ -39,7 +39,7 @@
           @click="enterGroup"
         >
           <!-- 左侧群聊头像 -->
-          <view class="group-avatar">
+          <view class="group-avatar avatar-ring-white ring-unclip">
             <image :src="item.avatar" mode="aspectFill" class="avatar-image"></image>
           </view>
 
@@ -185,7 +185,7 @@ function loadMore() {
 .group-avatar {
   width: 50px;
   height: 50px;
-  border-radius: 12px;
+  border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
   background: #f0f0f0;

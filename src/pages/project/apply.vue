@@ -19,7 +19,7 @@
         <view class="dot" v-if="a.unread"></view>
         <text class="coop-t">共创{{ a.coopCount || 0 }}次</text>
         <view class="a-main">
-          <view class="avatar-bg"><text class="avatar-txt">{{ initial(a.name) }}</text></view>
+          <view class="avatar-bg avatar-ring-white"><text class="avatar-txt">{{ initial(a.name) }}</text></view>
           <view class="a-info">
             <!-- 稿：名字 → Lv 胶囊 → 「申请加入你的项目」，三者同行（胶囊下沉 7.9px） -->
             <view class="a-name-row">
@@ -228,6 +228,8 @@ async function confirmPass() {
   display: flex;
   align-items: center;
   justify-content: center;
+  /* 与我的申请/项目要求/项目管理统一：胶囊右下深灰阴影（稿 slide8 outerShdw） */
+  box-shadow: 8rpx 8rpx 15rpx rgba(0, 0, 0, 0.2);
 }
 .act-btn.pass { background: linear-gradient(90deg, #538474 0%, #5ba188 53%, #77bbac 100%); }
 .act-btn.reject { background: #e8e8e8; margin-left: 6rpx; }
@@ -248,6 +250,7 @@ async function confirmPass() {
   padding: 0 12rpx;
   box-sizing: border-box;
   flex-shrink: 0;
+  box-shadow: 8rpx 8rpx 15rpx rgba(0, 0, 0, 0.2);
 }
 .status-t { font-size: 22rpx; color: #4e6f66; line-height: 1; }
 

@@ -32,6 +32,8 @@
       @scrolltolower="loadMore"
     >
       <view class="row" v-for="it in items" :key="it.id" @click="onRow(it)">
+        <!-- 未读小红点：点开详情后删除（变为已读） -->
+        <view v-if="it.unread" class="row-dot"></view>
         <!-- 头像（无头像时组件内首字母兜底） -->
         <UserAvatar :src="it.avatar" size="small" />
 
@@ -89,7 +91,7 @@ import { onLoad } from "@dcloudio/uni-app"
 import UserAvatar from "@/components/common/UserAvatar.vue"
 import DemoBadge from "@/components/common/DemoBadge.vue"
 import nav from '@/utils/nav.js'
-import { getInteractionNotifications, getTodoNotifications } from '@/api/chat.js'
+import { getInteractionNotifications, getTodoNotifications, readNotification } from '@/api/chat.js'
 import { normalizeNotification } from '@/api/adapter.js'
 import { withFallback, unwrapPage } from '@/utils/fallback.js'
 import { followUser } from '@/api/user.js'
@@ -150,17 +152,24 @@ function toItem(raw) {
     relatedType: n.relatedType,
     cover: work ? work.cover : '',
     followed: false,
-    time: n.time || ''
+    time: n.time || '',
+    unread: !n.isRead
   }
 }
 
-/** 回退数据（后端未就绪时页面仍可用；收藏分支后端无表无接口，已按契约移除） */
+/** 回退数据（后端未就绪时页面仍可用；收藏分支后端无表无接口，已按契约移除）。
+ *  返回「接口原始形状」，由 loadItems 里的 toItem 统一归一化一次；
+ *  is_read 控制右上角小红点，点开详情后清掉（变为已读）。 */
 function mockItems() {
-  return [
-    { id: 'm1', subtype: 'like', actionText: '赞了你', nickname: '罗大侠', senderId: 1, avatar: '', content: '', relatedId: 1, cover: '', followed: false, time: '3 分钟前' },
-    { id: 'm2', subtype: 'comment', actionText: '评论了你', nickname: '剪辑达人', senderId: 5, avatar: '', content: '这个创意真的很棒！', relatedId: 4, cover: '', followed: false, time: '1 小时前' },
-    { id: 'm3', subtype: 'follow', actionText: '关注了你', nickname: '创意设计师', senderId: 3, avatar: '', content: '', relatedId: 0, cover: '', followed: false, time: '20 分钟前' }
+  const all = [
+    { notification_id: 1, type: 'interaction', subtype: 'like', sender_id: 1, sender: { id: 1, nickname: '罗大侠' }, content: '', related_type: 'work', related_id: 1, is_read: false, created_at: '' },
+    { notification_id: 2, type: 'interaction', subtype: 'comment', sender_id: 5, sender: { id: 5, nickname: '剪辑达人' }, content: '这个创意真的很棒！', related_type: 'work', related_id: 4, is_read: true, created_at: '' },
+    { notification_id: 3, type: 'interaction', subtype: 'follow', sender_id: 3, sender: { id: 3, nickname: '创意设计师' }, content: '', related_type: 'user', related_id: 3, is_read: true, created_at: '' },
+    { notification_id: 4, type: 'todo', subtype: 'apply', sender_id: 2, sender: { id: 2, nickname: '冯大侠' }, content: '申请加入你的项目', related_type: 'project', related_id: 1, is_read: false, created_at: '' },
+    { notification_id: 5, type: 'todo', subtype: 'apply', sender_id: 4, sender: { id: 4, nickname: '灵感收藏家' }, content: '申请加入你的项目', related_type: 'project', related_id: 1, is_read: true, created_at: '' }
   ]
+  // 演示数据按当前模式给对应的条目，避免待办页里混进互动消息
+  return all.filter((n) => n.type === (isTodoMode.value ? 'todo' : 'interaction'))
 }
 
 /** 拉一页；reset=true 用于切换子类型 / 下拉刷新 */
@@ -257,8 +266,12 @@ function goTodo(it) {
   uni.navigateTo({ url: '/pages/project/apply?id=' + it.relatedId })
 }
 
-// 点击整行：待办去处理，互动进关联作品
+// 点击整行：待办去处理，互动进关联作品；先清未读小红点（变为已读）
 function onRow(it) {
+  if (it.unread) {
+    it.unread = false
+    if (!isDemo.value) readNotification(it.id).catch(() => {})
+  }
   if (isTodoMode.value) {
     goTodo(it)
   } else if (it.relatedId) {
@@ -285,7 +298,9 @@ function onRow(it) {
 /* 空态 / 加载中 */
 .list-empty { padding: 80rpx 0; text-align: center; }
 .empty-text { font-size: 26rpx; color: #bbb; }
-.row { display: flex; align-items: flex-start; background: #fff; border-radius: 20rpx; padding: 24rpx; margin-bottom: 16rpx; }
+.row { position: relative; display: flex; align-items: flex-start; background: #fff; border-radius: 20rpx; padding: 24rpx; margin-bottom: 16rpx; }
+/* 未读小红点：右上角，点开详情后消失 */
+.row-dot { position: absolute; right: 16rpx; top: 16rpx; width: 16rpx; height: 16rpx; border-radius: 50%; background: #df4c41; z-index: 2; }
 .thumb-img { width: 100%; height: 100%; border-radius: 14rpx; }
 .center { flex: 1; min-width: 0; margin-left: 20rpx; }
 .line1 { display: flex; align-items: center; }

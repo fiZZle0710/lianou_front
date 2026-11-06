@@ -2,7 +2,7 @@
   <!-- 会话列表项：对齐 tif/消息.tif
        头像（带描边环）+ 昵称 + 预览 + 右侧时间/静音/未读红点；未读行整行浅灰底 -->
   <view class="session-item" :class="{ unread: unread > 0 }" @click="emit('click')">
-    <view class="avatar-ring">
+    <view class="avatar-ring avatar-ring-white ring-unclip">
       <image v-if="avatar" class="avatar-img" :src="avatar" mode="aspectFill" />
       <view v-else class="avatar-bg"><text class="avatar-txt">{{ nickname[0] }}</text></view>
     </view>

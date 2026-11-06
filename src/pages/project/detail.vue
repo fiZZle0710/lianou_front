@@ -16,7 +16,7 @@
       <!-- 发起人 -->
       <text class="sec-label">发起人</text>
       <view class="card owner-card">
-        <view class="owner-avatar" @click="goProfile"><text class="owner-avatar-t">{{ initial(ownerName) }}</text></view>
+        <view class="owner-avatar avatar-ring-white" @click="goProfile"><text class="owner-avatar-t">{{ initial(ownerName) }}</text></view>
         <view class="owner-main">
           <view class="owner-name-row">
             <text class="owner-name">{{ ownerName }}</text>
@@ -49,7 +49,7 @@
       <view class="card member-card">
         <view class="member-list">
           <view v-for="(m, i) in memberAvatars" :key="m.id || i" class="member-col">
-            <view class="member-a"><text class="member-a-t">{{ initial(m.nickname) }}</text></view>
+            <view class="member-a avatar-ring-white"><text class="member-a-t">{{ initial(m.nickname) }}</text></view>
             <text class="member-name">{{ m.nickname }}</text>
           </view>
           <view class="member-more"><text class="member-more-t">…</text></view>

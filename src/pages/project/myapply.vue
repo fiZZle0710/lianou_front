@@ -17,7 +17,7 @@
     <scroll-view scroll-y class="list-scroll">
       <view class="apply-row" v-for="(a, i) in list" :key="a.id || i" @click="goDetail(a)">
         <view class="dot" v-if="a.unread"></view>
-        <view class="avatar-bg"><text class="avatar-txt">{{ initial(a.projectName) }}</text></view>
+        <view class="avatar-bg avatar-ring-white"><text class="avatar-txt">{{ initial(a.projectName) }}</text></view>
         <view class="center">
           <view class="name-row">
             <text class="proj-name">{{ a.projectName || '（项目不可见）' }}</text>
@@ -82,17 +82,18 @@ function goDetail(a) {
 
 function initial(name) { return (name || '?').charAt(0) }
 
-/** CSS 类仍是旧的 reviewing/approved/expired 三态，这里把后端状态映射过来 */
+/** 稿(slide6)：已通过=渐变胶囊 / 审核中=#E6EEED 胶囊 / 未通过=灰色胶囊 / 已过期=无胶囊纯文字 */
 function statusClass(s) {
   if (s === 'approved') return 'approved'
   if (s === 'pending' || s === 'reviewing') return 'reviewing'
+  if (s === 'rejected') return 'rejected'
   return 'expired'
 }
 
 function statusText(s) {
   if (s === 'approved') return "已通过"
   if (s === 'pending' || s === 'reviewing') return "审核中"
-  if (s === 'rejected') return "已拒绝"
+  if (s === 'rejected') return "未通过"
   if (s === 'expired') return "已过期"
   if (s === 'left') return "已退出"
   if (s === 'removed') return "已移除"
@@ -166,7 +167,8 @@ function statusText(s) {
 
 /* 状态胶囊：已通过=渐变白字；审核中=#E6EEED+#4E6F66；已过期/未通过=#E8E8E8+#747474 */
 .status {
-  /* 稿：胶囊右缘距卡右 14.7px（28rpx），纵向比居中高 3.4px */
+  /* 稿：胶囊右缘距卡右 14.7px（28rpx），纵向比居中高 3.4px；
+     所有胶囊统一右下深灰阴影（outerShdw dx/dy 4.21 blur 7.94 a=0.20） */
   margin: 50rpx 8rpx 0 0;
   height: 50rpx;
   min-width: 118rpx;
@@ -177,10 +179,18 @@ function statusText(s) {
   justify-content: center;
   box-sizing: border-box;
   flex-shrink: 0;
+  box-shadow: 8rpx 8rpx 15rpx rgba(0, 0, 0, 0.2);
 }
 .status.approved { background: linear-gradient(90deg, #538474 0%, #5ba188 53%, #77bbac 100%); }
 .status.reviewing { background: #e6eeed; }
-.status.expired { background: #e8e8e8; }
+.status.rejected { background: #e8e8e8; }
+/* 已过期：稿上只有纯文字、没有胶囊，去掉底色/阴影/内边距 */
+.status.expired {
+  background: transparent;
+  box-shadow: none;
+  min-width: 0;
+  padding: 0;
+}
 .status-t { font-size: 22rpx; color: #747474; line-height: 1; }
 .status.approved .status-t { color: #fff; }
 .status.reviewing .status-t { color: #4e6f66; }

@@ -36,7 +36,7 @@
 
     <!-- 底部信息行：头像 + 多图缩略条 + 文案 -->
     <view class="info">
-      <view class="info-avatar">
+      <view class="info-avatar avatar-ring-white">
         <text class="ia-t">{{ avatarLetter }}</text>
       </view>
       <view v-if="total > 1" class="info-thumbs">

@@ -5,7 +5,7 @@
   <view class="proj-card" :class="'v-' + variant" @click="emit('click')">
     <!-- 发起人 + 标题 + 右侧附属 -->
     <view class="head">
-      <view class="avatar-bg"><text class="avatar-txt">{{ ownerName[0] }}</text></view>
+      <view class="avatar-bg avatar-ring-white"><text class="avatar-txt">{{ ownerName[0] }}</text></view>
       <view class="head-info">
         <view class="name-row">
           <text class="name">{{ ownerName }}</text>
@@ -37,7 +37,7 @@
       <view class="block block-mem">
         <text class="block-title">招募人数（{{ current }}/{{ total }}）</text>
         <view class="members">
-          <view v-for="(m, i) in memberSlots" :key="i" class="m-avatar">
+          <view v-for="(m, i) in memberSlots" :key="i" class="m-avatar avatar-ring-white">
             <text class="m-txt">{{ m }}</text>
           </view>
           <view v-if="hasMoreThanSlots" class="m-more"><text class="m-more-t">…</text></view>

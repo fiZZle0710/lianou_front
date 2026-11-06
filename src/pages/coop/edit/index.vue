@@ -7,7 +7,7 @@
     <scroll-view scroll-y class="form-scroll">
       <!-- 发起人信息卡 -->
       <view class="intro-card">
-        <view class="ic-avatar">
+        <view class="ic-avatar avatar-ring-white">
           <text class="ic-avatar-t">{{ avatarLetter }}</text>
         </view>
         <view class="ic-main">
