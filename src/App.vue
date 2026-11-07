@@ -47,7 +47,7 @@ scroll-view {
 }
 /* 通用白色头像框：所有手写圆头像统一叠加（与 UserAvatar.vue 的 white.png 一致）。
    ::after 比容器大 12%，圆环刚好落在头像内容之外；不裁切内容、不拦截点击。 */
-.avatar-ring-white { position: relative; }
+.avatar-ring-white { position: relative; isolation: isolate; }
 .avatar-ring-white::after {
   content: '';
   position: absolute;
@@ -59,7 +59,9 @@ scroll-view {
   border-radius: 50%;
   background: url('/static/avatar-frame/white.png') center / 100% 100% no-repeat;
   pointer-events: none;
-  z-index: 3;
+  /* z-index 只在 isolation:isolate 建出的容器内生效：白环跟着各自头像，
+     后面头像（圆+环）整体盖前面头像，不再所有白环统一浮到顶层形成螺旋 */
+  z-index: 1;
 }
 /* 有 overflow:hidden 的容器会裁掉外扩圆环：放开裁切，并让内部内容保持正圆 */
 .avatar-ring-white.ring-unclip { overflow: visible !important; }

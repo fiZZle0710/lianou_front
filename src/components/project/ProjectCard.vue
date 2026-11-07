@@ -187,7 +187,7 @@ const skillText = computed(() => {
 }
 .v-list .avatar-bg { width: 73rpx; height: 73rpx; }
 .v-list .avatar-txt { font-size: 28rpx; }
-.v-list .head-info { margin-left: 15rpx; }
+.v-list .head-info { margin-left: 20rpx; }
 .v-list .name { font-size: 30rpx; }
 .v-list .name-sub { font-size: 22rpx; margin-left: 4rpx; }
 .v-list .quote { margin-top: 5rpx; font-size: 15rpx; }
@@ -220,7 +220,7 @@ const skillText = computed(() => {
 .v-mine .body { padding-right: 66rpx; }
 .v-mine .avatar-bg { width: 75rpx; height: 75rpx; }
 .v-mine .avatar-txt { font-size: 28rpx; }
-.v-mine .head-info { margin-left: 16rpx; }
+.v-mine .head-info { margin-left: 20rpx; }
 .v-mine .name { font-size: 30rpx; }
 .v-mine .name-sub { font-size: 22rpx; margin-left: 4rpx; }
 .v-mine .quote { margin-top: 5rpx; font-size: 15rpx; }

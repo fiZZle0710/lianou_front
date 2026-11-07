@@ -289,7 +289,7 @@ async function submitApply() {
   flex-shrink: 0;
 }
 .owner-avatar-t { font-size: 42rpx; color: #fff; }
-.owner-main { position: absolute; left: 156rpx; top: 24rpx; right: 96rpx; }
+.owner-main { position: absolute; left: 172rpx; top: 24rpx; right: 96rpx; }
 .owner-name-row { display: flex; align-items: center; }
 /* 名字 19.8px（37rpx）粗体 #3A3A3A */
 .owner-name { font-size: 37rpx; color: #3a3a3a; font-weight: 700; line-height: 1; }

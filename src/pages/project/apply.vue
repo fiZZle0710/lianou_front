@@ -199,7 +199,7 @@ async function confirmPass() {
 }
 .avatar-txt { font-size: 30rpx; color: #fff; }
 /* 稿：卡 98..176.6；头像 115（距卡顶 17px=32rpx），文字块 113（15px=28rpx） */
-.a-info { flex: 1; min-width: 0; margin-left: 14rpx; padding-top: 28rpx; }
+.a-info { flex: 1; min-width: 0; margin-left: 22rpx; padding-top: 28rpx; }
 .a-name-row { display: flex; align-items: flex-start; }
 .a-name { font-size: 26rpx; color: #3a3a3a; font-weight: 700; }
 .a-sub { font-size: 18rpx; color: #747474; font-weight: 700; margin-left: 8rpx; line-height: 26rpx; }

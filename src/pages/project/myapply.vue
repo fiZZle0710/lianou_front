@@ -159,7 +159,7 @@ function statusText(s) {
 }
 .avatar-txt { font-size: 34rpx; color: #fff; }
 /* 稿：文字块 x82.8（头像右缘 87.6），文本框比头像略靠左，这里贴头像右缘起排 */
-.center { flex: 1; min-width: 0; margin-left: -4rpx; padding-top: 22rpx; }
+.center { flex: 1; min-width: 0; margin-left: 14rpx; padding-top: 22rpx; }
 .name-row { display: flex; align-items: baseline; }
 .proj-name { font-size: 30rpx; color: #3a3a3a; font-weight: 700; }
 .proj-sub { font-size: 22rpx; color: #747474; font-weight: 700; margin-left: 6rpx; }
