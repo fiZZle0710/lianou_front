@@ -292,31 +292,37 @@ function shareTo(e) {
   height: 96rpx;
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   background: #fff;
   position: sticky;
   top: 0;
   z-index: 10;
+  /* 设计稿：「作品 项目 活动 收藏」是左对齐紧凑排布（不是四个 flex:1 均分整宽），
+     左内边距较大；右侧搜索放大镜作为功能入口保留，推到行尾 */
+  padding-left: 120rpx; /* 设计稿：文字起始 x≈64px = 120rpx（402px↔750rpx） */
+  box-sizing: border-box;
 }
 
 .tab {
-  flex: 1;
+  flex: none;
   height: 96rpx;
   display: flex;
   align-items: flex-start;
-  justify-content: center;
+  justify-content: flex-start;
   position: relative;
   padding-top: 18rpx;
+  margin-right: 42rpx; /* 设计稿：标签紧凑间距（约 22px） */
   color: #9aa39f;
 }
 
 .tab-text {
-  font-size: 30rpx; /* 设计稿：约 16px */
+  font-size: 26rpx; /* 设计稿：字高约 15px ≈ 26rpx */
 }
 
 /* 作品数量：小号上标，灰绿色 */
 .tab-count {
   margin-left: 6rpx;
-  font-size: 20rpx;
+  font-size: 18rpx;
   color: #8fbfa8;
 }
 
@@ -328,8 +334,9 @@ function shareTo(e) {
 .tab.active::after {
   content: '';
   position: absolute;
-  bottom: 14rpx;
-  width: 80rpx;
+  left: 0;
+  bottom: 22rpx; /* 设计稿：短横紧贴文字下方，比原来上移 */
+  width: 76rpx;  /* 设计稿：宽度约等于「作品」两字 */
   height: 6rpx;
   background: #16bd88; /* 设计稿：选中态是薄荷绿下划线 */
   border-radius: 3rpx;
@@ -338,6 +345,7 @@ function shareTo(e) {
 /* 搜索区域 */
 .search-wrapper {
   width: 50px;
+  margin-left: auto; /* 标签改紧凑左对齐后，放大镜仍推到行尾 */
   display: flex;
   align-items: center;
   justify-content: center;

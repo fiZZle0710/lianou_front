@@ -10,6 +10,9 @@
     -->
     <image v-if="userInfo.cover" class="cover" :src="userInfo.cover" mode="aspectFill" />
     <view v-if="userInfo.cover" class="cover-fade"></view>
+    <!-- 点击封面区域即可从相册换图；覆盖到资料块上方，不遮挡头像与右上操作按钮 -->
+    <view class="cover-tap" @click="changeCover"></view>
+    <text v-if="!userInfo.cover" class="cover-hint">点击更换封面</text>
 
     <view class="profile">
       <view class="avatar-wrap" @click="openProfile">
@@ -53,6 +56,22 @@ const userInfo = ref({
   intro: '从不鸽人 · 致力于水墨与人间月色'
 })
 
+// 点击封面从相册换图：仅本次会话内生效。
+// 后端「我的资料」暂无封面字段，且 H5 的 tempFilePath 是 blob URL，
+// 刷新后会失效，所以不落 storage，避免下次进页面显示破图。
+function changeCover() {
+  uni.chooseImage({
+    count: 1,
+    sizeType: ['compressed'],
+    sourceType: ['album'],
+    success(res) {
+      const p = (res.tempFilePaths || [])[0]
+      if (!p) return
+      userInfo.value.cover = p
+    }
+  })
+}
+
 function openProfile() {
   uni.navigateTo({ url: '/pages/user/detail' })
 }
@@ -72,6 +91,29 @@ function openProfile() {
   top: 0;
   width: 100%;
   height: 620rpx;
+}
+
+/* 封面点击区：覆盖到资料块上方；右上按钮 z-index 更高，仍可点 */
+.cover-tap {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 366rpx;
+  z-index: 1;
+}
+
+/* 没有封面图时给一个极淡的可发现性提示（不拦截点击） */
+.cover-hint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 150rpx;
+  text-align: center;
+  font-size: 22rpx;
+  color: rgba(60, 70, 66, 0.35);
+  z-index: 0;
+  pointer-events: none;
 }
 
 /* 封面下缘渐隐到页面白底（设计稿里画是会淡出的） */
