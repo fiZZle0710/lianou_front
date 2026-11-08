@@ -283,7 +283,7 @@ function shareTo(e) {
 
 <style scoped>
 .container {
-  background: #ffffff;
+  background: transparent; /* 分类栏/作品区容器透明，露出页面底（先在白底上生效） */
   margin-top: 30rpx; /* 设计稿：与上方按钮组间距约 16px */
 }
 
@@ -293,7 +293,7 @@ function shareTo(e) {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  background: #fff;
+  background: transparent; /* 分类栏透明底 */
   position: sticky;
   top: 0;
   z-index: 10;
