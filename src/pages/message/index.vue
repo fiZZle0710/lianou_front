@@ -374,7 +374,7 @@ async function onClean() {
   align-items: center;
   justify-content: space-between;
   padding: 12rpx 28rpx;
-  padding-top: calc(env(safe-area-inset-top) + 12rpx);
+  padding-top: calc(env(safe-area-inset-top) + var(--sbh-blank, 0px) + 12rpx);
   background: #fff;
 }
 .nav-side { width: 80rpx; height: 64rpx; display: flex; align-items: center; }

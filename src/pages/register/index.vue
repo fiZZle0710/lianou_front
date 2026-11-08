@@ -151,7 +151,7 @@ onUnload(() => {
   min-height: 100vh;
   background: #faf7f2;
   padding: 0 64rpx;
-  padding-top: calc(env(safe-area-inset-top) + 20rpx);
+  padding-top: calc(env(safe-area-inset-top) + var(--sbh-blank, 0px) + 20rpx);
   box-sizing: border-box;
 }
 .nav { display: flex; align-items: center; padding: 20rpx 0 40rpx; }

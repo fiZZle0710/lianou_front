@@ -34,7 +34,7 @@ function goPro() { choose("pro", "/pages/text2/index") }
 function goNew() { choose("new", "/pages/text1/index") }
 </script>
 <style scoped>
-.page { min-height: 100vh; background: #faf7f2; padding: 0 48rpx; padding-top: calc(env(safe-area-inset-top) + 20rpx); box-sizing: border-box; }
+.page { min-height: 100vh; background: #faf7f2; padding: 0 48rpx; padding-top: calc(env(safe-area-inset-top) + var(--sbh-blank, 0px) + 20rpx); box-sizing: border-box; }
 .nav { display: flex; align-items: center; padding: 20rpx 0 40rpx; }
 .nav-back { position: absolute; left: 40rpx; width: 60rpx; height: 60rpx; display: flex; align-items: center; justify-content: center; }
 .back-icon { font-size: 40rpx; color: #6b5f57; }

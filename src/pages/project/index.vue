@@ -1,6 +1,7 @@
 <template>
   <!-- 项目中心（一级页）—— 视觉对齐 tif/项目.pptm slide1 -->
   <view class="page" :style="{ '--sbh': statusBarHeight + 'px' }">
+    <view class="sb-blank"></view>
     <!-- 顶部导航：清单（进入我的项目管理） + 标题 + 搜索 -->
     <view class="nav">
       <view class="nav-side" @click="goManage">

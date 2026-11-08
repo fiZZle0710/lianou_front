@@ -104,7 +104,7 @@ const NAV_CONTENT_H = 48
 const SEARCH_BLOCK_H = 80
 
 /** 状态栏高度（自定义导航要自己占位，口径与 CustomNavbar 一致） */
-const statusBarHeight = uni.getSystemInfoSync().statusBarHeight || 0
+const statusBarHeight = uni.getSystemInfoSync().statusBarHeight || 25
 
 /** 搜索关键词（前端本地过滤；后端 5.16 我的项目无 keyword 参数） */
 const keyword = ref("")

@@ -62,7 +62,7 @@ const statusBarHeight = ref(0)
 
 
 statusBarHeight.value =
-uni.getSystemInfoSync().statusBarHeight || 0
+uni.getSystemInfoSync().statusBarHeight || 25
 
 
 

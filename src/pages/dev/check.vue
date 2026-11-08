@@ -297,7 +297,7 @@ function goBack() { uni.navigateBack() }
 
 <style scoped>
 .page { background: #f5f6fa; min-height: 100vh; }
-.nav { display: flex; align-items: center; justify-content: space-between; padding: 20rpx 24rpx; padding-top: calc(env(safe-area-inset-top) + 20rpx); background: #fff; }
+.nav { display: flex; align-items: center; justify-content: space-between; padding: 20rpx 24rpx; padding-top: calc(env(safe-area-inset-top) + var(--sbh-blank, 0px) + 20rpx); background: #fff; }
 .nav-back { width: 70rpx; height: 60rpx; display: flex; align-items: center; }
 .back-icon { font-size: 40rpx; color: #333; }
 .nav-title { font-size: 34rpx; font-weight: 700; color: #333; }

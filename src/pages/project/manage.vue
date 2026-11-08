@@ -1,6 +1,7 @@
 <template>
   <!-- 项目管理（二级页）—— 按 tif/项目.pptm slide7 -->
   <view class="page" :style="{ '--sbh': statusBarHeight + 'px' }">
+    <view class="sb-blank"></view>
     <view class="nav">
       <view class="nav-back" @click="goBack">
         <image class="nav-back-ic" src="/static/icons/icon-arrow-left-grey.svg" mode="aspectFit" />

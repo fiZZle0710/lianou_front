@@ -1084,7 +1084,7 @@ export default {
 /* 顶部导航 */
 .editor-header {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 20rpx 30rpx; padding-top: calc(60rpx + env(safe-area-inset-top)); background: #1a1a1a;
+  padding: 20rpx 30rpx; padding-top: calc(60rpx + env(safe-area-inset-top) + var(--sbh-blank, 0px)); background: #1a1a1a;
 }
 .header-left, .header-center, .header-right { flex: 1; }
 .header-left { display: flex; }

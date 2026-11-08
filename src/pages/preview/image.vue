@@ -78,9 +78,9 @@ const total = computed(() => images.value.length)
 const statusBarHeight = ref(0)
 try {
   const sys = uni.getSystemInfoSync()
-  statusBarHeight.value = sys.statusBarHeight || 0
+  statusBarHeight.value = sys.statusBarHeight || 25
 } catch (e) {
-  statusBarHeight.value = 0
+  statusBarHeight.value = 25
 }
 
 /** 每张图的 natural 宽高比（w/h），拿不到时按 1 处理 */

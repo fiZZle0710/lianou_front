@@ -69,4 +69,14 @@ scroll-view {
 .avatar-ring-white.ring-unclip > image,
 .avatar-ring-white.ring-unclip > .avatar-img,
 .avatar-ring-white.ring-unclip > .avatar-bg { border-radius: 50% !important; }
+
+/* 全站顶部状态栏留白：只留一条空白占位，不画时间/信号。
+   真机（APP）由各页自身的 statusBarHeight 占位处理，这里为 0 不叠加；
+   H5 没有系统状态栏，兜底 25px，让浏览器预览也能看到这条空白。
+   统一放在各页 .page 容器里（它是 flex 列，留白只压缩滚动区，不会撑出滚动条）。 */
+page, .page { --sbh-blank: 0px; }
+/* #ifdef H5 */
+page, .page { --sbh-blank: 25px; }
+/* #endif */
+.sb-blank { height: var(--sbh-blank, 0px); flex-shrink: 0; }
 </style>

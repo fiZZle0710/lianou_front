@@ -167,7 +167,7 @@ const images = ref(selectedImages.slice())
 const current = ref(0)
 /** 状态栏高度：H5 下由 uni.getSystemInfoSync 取，真机才有值 */
 const sysInfo = uni.getSystemInfoSync ? uni.getSystemInfoSync() : {}
-const statusBarHeight = ref((sysInfo && sysInfo.statusBarHeight) || 0)
+const statusBarHeight = ref((sysInfo && sysInfo.statusBarHeight) || 25)
 const title = ref("")
 const body = ref("")
 const topicInput = ref("")

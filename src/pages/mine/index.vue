@@ -66,7 +66,7 @@ const publishStatus = ref('')
 
 // 状态栏高度：透明导航要靠它把按钮压到状态栏下面
 const statusBarHeight = ref(0)
-statusBarHeight.value = uni.getSystemInfoSync().statusBarHeight || 0
+statusBarHeight.value = uni.getSystemInfoSync().statusBarHeight || 25
 
 // 监听发布状态事件
 function onPublishStatus(status) {
