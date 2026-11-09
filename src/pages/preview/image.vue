@@ -16,7 +16,10 @@
 
     <!-- 图片舞台：长图铺满（cover）/ 短图上下留 #282828 灰框（contain） -->
     <view id="stage" class="stage">
-      <swiper class="stage-swiper" :current="current" @change="onSwiperChange">
+      <view v-if="!total" class="stage-empty">
+        <text class="se-t">暂无图片，请返回重新选择</text>
+      </view>
+      <swiper v-else class="stage-swiper" :current="current" @change="onSwiperChange">
         <swiper-item v-for="(img, i) in images" :key="img.id || i">
           <view class="slide">
             <image
@@ -39,7 +42,7 @@
       <view class="info-avatar avatar-ring-white">
         <text class="ia-t">{{ avatarLetter }}</text>
       </view>
-      <view v-if="total > 1" class="info-thumbs">
+      <view v-if="total > 0" class="info-thumbs">
         <view
           v-for="(img, i) in images"
           :key="'th' + (img.id || i)"
@@ -48,6 +51,8 @@
           @click="current = i"
         >
           <image v-if="img.src" class="thumb-img" :src="img.src" mode="aspectFill"></image>
+          <!-- 右上角小灰圆叉：移除这张图（Figma node-id=317-22 更新版） -->
+          <view v-if="i === current" class="thumb-del" @click.stop="removeImage(i)"></view>
         </view>
       </view>
       <view class="info-main">
@@ -67,7 +72,7 @@
 
 <script setup>
 import { computed, nextTick, onMounted, ref } from 'vue'
-import { selectedImages } from '@/utils/createStore.js'
+import { selectedImages, setSelectedImages } from '@/utils/createStore.js'
 import { getUserInfo } from '@/utils/auth.js'
 
 const images = ref(selectedImages.slice())
@@ -175,6 +180,29 @@ function onMore() {
   })
 }
 
+/** 缩略图右上角小灰叉：移除这张图，并同步全局选图列表（发布页依赖它） */
+function removeImage(i) {
+  if (i < 0 || i >= images.value.length) return
+  const oldAspects = aspects.value
+  images.value.splice(i, 1)
+  // 宽高比缓存按索引存：删除点之后的索引整体前移一位
+  const nextAspects = {}
+  images.value.forEach(function(_, k) {
+    const from = k >= i ? k + 1 : k
+    if (oldAspects[from] != null) nextAspects[k] = oldAspects[from]
+  })
+  aspects.value = nextAspects
+  fitModes.value = {}
+  decideAll()
+  setSelectedImages(images.value.slice())
+  if (current.value >= images.value.length) {
+    current.value = Math.max(0, images.value.length - 1)
+  }
+  if (!images.value.length) {
+    uni.showToast({ title: '已移除全部图片', icon: 'none' })
+  }
+}
+
 function goBack() {
   uni.navigateBack()
 }
@@ -266,6 +294,17 @@ onMounted(function() {
   overflow: hidden;
   background: #282828;
 }
+.stage-empty {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.se-t {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.45);
+}
 .stage-swiper {
   width: 100%;
   height: 100%;
@@ -331,6 +370,7 @@ onMounted(function() {
   flex-shrink: 0;
 }
 .thumb {
+  position: relative;
   width: 86rpx;
   height: 86rpx;
   border-radius: 12rpx;
@@ -343,6 +383,32 @@ onMounted(function() {
 /* 有缩略条时，文案紧贴缩略条（稿上间距约 11px） */
 .info-thumbs + .info-main { margin-left: 22rpx; }
 .thumb-on { box-shadow: 0 0 0 3rpx #d1fae5; }
+/* 右上角小灰圆叉：深灰半透明圆底 + 白色圆头 ×，压在缩略图右上角内侧 */
+.thumb-del {
+  position: absolute;
+  top: 6rpx;
+  right: 6rpx;
+  width: 30rpx;
+  height: 30rpx;
+  border-radius: 50%;
+  background: rgba(58, 63, 59, 0.86);
+  z-index: 2;
+}
+.thumb-del::before,
+.thumb-del::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 15rpx;
+  height: 3rpx;
+  border-radius: 3rpx;
+  background: #ffffff;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+.thumb-del::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
 .thumb-img {
   width: 100%;
   height: 100%;
