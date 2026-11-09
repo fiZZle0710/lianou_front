@@ -6,7 +6,7 @@
       <text class="action-text">浏览记录</text>
     </view>
 
-    <view class="action" @click="goGroup">
+    <view class="action action-group" @click="goGroup">
       <view class="action-icon-wrap">
         <image class="action-icon" :src="ICON_PEOPLE" mode="aspectFit" />
         <!-- 红点：群聊有新消息（后端没有未读数，先按设计稿常显） -->
@@ -63,6 +63,13 @@ function goGroup() {
 
 .action:active {
   opacity: 0.75;
+}
+
+/* 群聊：左侧图标与右侧文字下方对齐（底边齐平），略抬起不贴按钮底 */
+.action-group {
+  align-items: flex-end;
+  padding-bottom: 20rpx;
+  box-sizing: border-box;
 }
 
 .action-icon-wrap {

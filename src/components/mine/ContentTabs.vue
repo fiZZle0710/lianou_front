@@ -107,7 +107,7 @@
           </view>
 
           <view class="project-block">
-            <text class="block-title">我参与的</text>
+            <text class="block-title">{{ isOther ? '参与的' : '我参与的' }}</text>
             <scroll-view scroll-x class="horizontal-scroll" show-scrollbar="false">
               <view class="card-list">
                 <view
@@ -182,7 +182,9 @@ const props = defineProps({
   publishStatus: {
     type: String,
     default: ''
-  }
+  },
+  // 他人主页：活动里「我参与的」改为「参与的」
+  isOther: { type: Boolean, default: false }
 })
 
 const emit = defineEmits(['clearPublish'])
@@ -299,7 +301,7 @@ function shareTo(e) {
   z-index: 10;
   /* 设计稿：「作品 项目 活动 收藏」是左对齐紧凑排布（不是四个 flex:1 均分整宽），
      左内边距较大；右侧搜索放大镜作为功能入口保留，推到行尾 */
-  padding-left: 120rpx; /* 设计稿：文字起始 x≈64px = 120rpx（402px↔750rpx） */
+  padding-left: 90rpx; /* 分类栏文字整体向左移动一部分 */
   box-sizing: border-box;
 }
 
@@ -316,7 +318,7 @@ function shareTo(e) {
 }
 
 .tab-text {
-  font-size: 26rpx; /* 设计稿：字高约 15px ≈ 26rpx */
+  font-size: 30rpx; /* 分类栏文字稍微放大 */
 }
 
 /* 作品数量：小号上标，灰绿色 */
@@ -403,7 +405,8 @@ function shareTo(e) {
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  border: 1px solid #e5e5e5;
+  box-sizing: border-box; /* 第12条：投影阴影→1px 浅灰边框，border-box 防撑大 */
   position: relative;
 }
 
@@ -529,7 +532,8 @@ function shareTo(e) {
   flex-direction: column;
   justify-content: space-between;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  border: 1px solid #e5e5e5;
+  box-sizing: border-box; /* 第12条：投影阴影→1px 浅灰边框，border-box 防撑大 */
 }
 
 .project-card.completed {
@@ -578,7 +582,8 @@ function shareTo(e) {
   background: #fff;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  border: 1px solid #e5e5e5;
+  box-sizing: border-box; /* 第12条：投影阴影→1px 浅灰边框，border-box 防撑大 */
 }
 
 .activity-image {
@@ -624,7 +629,8 @@ function shareTo(e) {
   background: #fff;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  border: 1px solid #e5e5e5;
+  box-sizing: border-box; /* 第12条：投影阴影→1px 浅灰边框，border-box 防撑大 */
 }
 
 .collection-cover {

@@ -130,7 +130,8 @@ function shareTo(e) {
   padding: 30px;
   width: 100%;
   max-width: 320px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e5e5;
+  box-sizing: border-box; /* 第12条：投影阴影→1px 浅灰边框，border-box 防撑大 */
 }
 
 /* 大二维码 */

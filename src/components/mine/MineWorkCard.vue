@@ -80,16 +80,12 @@ function onError() {
 
 <style scoped>
 /* 设计稿实测（Figma node-id=172-576，「Article - Artwork Card 2」Frame）：
-   173×247，圆角仅上左/上右 16px，填充 #1C2A22 65%，描边 1px #FFFFFF 15%，
-   两层投影 0/4/6/-4 与 0/10/15/-3（各 10%）。 */
-/* 描边用 inset 阴影画，避免 border 参与盒模型把卡片撑高 2px */
+   173×247，圆角仅上左/上右 16px，填充 #1C2A22 65%，描边 1px #FFFFFF 15%。 */
+/* 第12条：去掉两层投影，改用 1px 浅灰边框；仍用 inset 画法避免 border 撑高卡片 */
 .mcard {
   background: #1c2a22;
-  border-radius: 30rpx 30rpx 0 0;
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.15),
-    0 4px 6px -4px rgba(0, 0, 0, 0.1),
-    0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  border-radius: 30rpx 30rpx 24rpx 24rpx; /* 设计稿：下方两个角也改圆角 */
+  box-shadow: inset 0 0 0 1px #e5e5e5;
   overflow: hidden;
 }
 

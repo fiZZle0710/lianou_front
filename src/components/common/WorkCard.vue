@@ -73,7 +73,8 @@ function handleClick() {
   border-radius: 12px;
   overflow: hidden;
   margin-bottom: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border: 1px solid #e5e5e5;
+  box-sizing: border-box; /* 第12条：投影阴影→1px 浅灰边框，border-box 防撑大 */
 }
 
 .card-image {

@@ -11,11 +11,11 @@
     <image v-if="userInfo.cover" class="cover" :src="userInfo.cover" mode="aspectFill" />
     <view v-if="userInfo.cover" class="cover-fade"></view>
     <!-- 点击封面区域即可从相册换图；覆盖到资料块上方，不遮挡头像与右上操作按钮 -->
-    <view class="cover-tap" @click="changeCover"></view>
-    <text v-if="!userInfo.cover" class="cover-hint">点击更换封面</text>
+    <view v-if="!readonly" class="cover-tap" @click="changeCover"></view>
+    <text v-if="!readonly && !userInfo.cover" class="cover-hint">点击更换封面</text>
 
     <view class="profile">
-      <view class="avatar-wrap" @click="openProfile">
+      <view class="avatar-wrap" @click="onAvatarClick">
         <!-- 头像框：走 UserAvatar 现成的 frame 能力，素材放 /static/avatar-frame/
              （先用默认白色框 white.png 占位，详细样式定了换文件即可） -->
         <UserAvatar :src="userInfo.avatar" :size="58" :frame="userInfo.avatarFrame" />
@@ -34,12 +34,25 @@
       </view>
     </view>
 
-    <text class="intro">{{ userInfo.intro }}</text>
+    <view class="intro-wrap">
+      <view class="intro-line" :class="{ 'intro-open': introExpanded }">
+        <text class="intro-txt" :class="{ 'intro-1line': !introExpanded }">{{ userInfo.intro }}</text>
+        <text class="intro-more" @click="introExpanded = !introExpanded">{{ introExpanded ? '收起' : '……展开' }}</text>
+      </view>
+    </view>
   </view>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+
+// 他人主页只读：不允许换封面、点头像跳资料页
+const props = defineProps({
+  readonly: { type: Boolean, default: false }
+})
+
+// 签名收起/展开（设计稿：仅一行，多余收拢为「……展开」，点击向下展开）
+const introExpanded = ref(false)
 import UserAvatar from '@/components/common/UserAvatar.vue'
 
 // 后端还没有「我的资料」接口，先按设计稿的示例数据占位
@@ -72,7 +85,8 @@ function changeCover() {
   })
 }
 
-function openProfile() {
+function onAvatarClick() {
+  if (props.readonly) return
   uni.navigateTo({ url: '/pages/user/detail' })
 }
 </script>
@@ -90,7 +104,10 @@ function openProfile() {
   left: 0;
   top: 0;
   width: 100%;
-  height: 620rpx;
+  /* 设计稿：封面多露一些，图片下缘渐渐消失变成透明，与下方自然交接 */
+  height: 720rpx;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 66%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 0%, #000 66%, transparent 100%);
 }
 
 /* 封面点击区：覆盖到资料块上方；右上按钮 z-index 更高，仍可点 */
@@ -120,10 +137,11 @@ function openProfile() {
 .cover-fade {
   position: absolute;
   left: 0;
-  top: 300rpx;
+  top: 560rpx;
   width: 100%;
-  height: 320rpx;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #ffffff 78%);
+  height: 160rpx;
+  /* 辅助柔和交接：不再硬切成纯白 */
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.55) 100%);
 }
 
 .profile {
@@ -194,18 +212,43 @@ function openProfile() {
   padding: 0 14rpx;
   margin-right: 10rpx;
   border-radius: 10rpx;
-  background: rgba(120, 140, 130, 0.22);
-  color: #3c4642;
+  /* 设计稿：擅长胶囊是绿底白字（比原来的半透明灰绿更偏绿） */
+  background: #8bad9a;
+  color: #ffffff;
   font-size: 22rpx;
   line-height: 36rpx;
 }
 
-.intro {
-  display: block;
+.intro-wrap {
   position: relative;
-  margin-top: 20rpx;
-  padding: 0 41rpx;
+  /* 签名与上方资料块、下方内容区的间距都拉大 */
+  margin-top: 40rpx;
+  padding: 0 41rpx 36rpx;
+}
+.intro-line {
+  display: flex;
+  align-items: flex-end;
+}
+.intro-open {
+  align-items: flex-start;
+}
+.intro-txt {
+  flex: 1;
+  min-width: 0;
   font-size: 22rpx;
   color: #46504c;
+  line-height: 1.5;
+}
+.intro-1line {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.intro-more {
+  flex-shrink: 0;
+  margin-left: 8rpx;
+  font-size: 22rpx;
+  color: #6a9a7e;
+  line-height: 1.5;
 }
 </style>

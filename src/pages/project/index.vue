@@ -9,7 +9,7 @@
       </view>
       <text class="nav-title">项目中心</text>
       <view class="nav-side right" @click="goSearch">
-        <image class="nav-icon" src="/static/icons/icon-search-grey.svg" mode="aspectFit" />
+        <image class="nav-icon" src="/static/icons/icon-search-thin.svg" mode="aspectFit" />
       </view>
     </view>
 

@@ -22,6 +22,7 @@
     { "path": "pages/history/index" },
     { "path": "pages/group/index" },
     { "path": "pages/user/detail" },
+    { "path": "pages/user/home" },
     { "path": "pages/scan/index" },
     { "path": "pages/search/index" },
     { "path": "pages/account/index" },

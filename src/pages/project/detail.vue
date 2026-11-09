@@ -270,11 +270,12 @@ async function submitApply() {
 }
 .body-scroll .sec-label:first-child { margin-top: 4rpx; }
 
-/* 卡片：白底 + 稿上 outerShdw dx/dy 4.21 blur 7.94 alpha .20 */
+/* 卡片：白底 + 1px 浅灰边框（第12条去投影） */
 .card {
   background: #fff;
   margin: 0 43rpx;
-  box-shadow: 8rpx 8rpx 15rpx rgba(0, 0, 0, 0.2);
+  border: 1px solid #e5e5e5;
+  box-sizing: border-box; /* 第12条：投影阴影→1px 浅灰边框，border-box 防撑大 */
 }
 
 /* 发起人卡 99.4px（185rpx），圆角 7.25px（14rpx） */

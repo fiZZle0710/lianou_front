@@ -23,9 +23,12 @@
 
     <!-- 搜索结果区域 -->
     <scroll-view scroll-y class="result-scroll" @scrolltolower="loadMore">
-      <!-- 搜索提示 -->
-      <view v-if="!searched" class="search-hint">
-        <text class="hint-text">输入关键词搜索作品</text>
+      <!-- 历史记录：点击搜索后下方空白处（静态示例，暂不接存储） -->
+      <view v-if="!searched" class="history-block">
+        <text class="history-title">历史记录</text>
+        <view class="history-tags">
+          <text v-for="(h, i) in historyList" :key="i" class="history-tag">{{ h }}</text>
+        </view>
       </view>
 
       <!-- 搜索结果 -->
@@ -93,6 +96,8 @@ const keyword = ref('')
 const searched = ref(false)
 const hasMore = ref(true)
 const resultCount = ref(0)
+// 搜索历史示例词（用户定案：先放静态示例，不接存储）
+const historyList = ref(['红色教育', '视频剪辑', '分镜脚本', '共创招募', '活动快剪'])
 
 /**
  * 支持从广场「#话题#」点进来直接搜：/pages/search/index?keyword=xxx
@@ -223,6 +228,30 @@ function goWorkDetail(e) {
   color: #007aff;
   margin-left: 12px;
   flex-shrink: 0;
+}
+
+/* 历史记录：标题比搜索框文字(14px)稍大且加粗黑字，记录稍小浅灰 */
+.history-block {
+  padding: 18px 16px 8px;
+}
+.history-title {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+.history-tags {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+.history-tag {
+  font-size: 13px;
+  color: #999;
+  background: #fff;
+  border-radius: 14px;
+  padding: 6px 12px;
+  margin: 0 8px 8px 0;
 }
 
 /* 搜索结果区域 */

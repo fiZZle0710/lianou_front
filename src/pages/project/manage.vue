@@ -92,8 +92,7 @@ function goMyApply() { uni.navigateTo({ url: '/pages/project/myapply' }) }
   align-items: center;
   justify-content: space-between;
   background: linear-gradient(90deg, #538474 0%, #5ba188 53%, #77bbac 100%);
-  /* 稿上三枚渐变胶囊右下深灰阴影 */
-  box-shadow: 8rpx 8rpx 15rpx rgba(0, 0, 0, 0.2);
+  border: 1px solid #e5e5e5;
 }
 .menu-pill:active { opacity: 0.92; }
 .menu-t { font-size: 28rpx; color: #fff; font-weight: 500; }

@@ -89,7 +89,8 @@ function handleMenuClick(item) {
   bottom: 0;
   width: 75%;
   background: #fff;
-  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e5e5;
+  box-sizing: border-box; /* 第12条：投影阴影→1px 浅灰边框，border-box 防撑大 */
   z-index: 999;
   animation: slideIn 0.3s ease;
 }

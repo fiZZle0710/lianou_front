@@ -138,7 +138,7 @@ function statusText(s) {
   border-radius: 12rpx;
   padding: 0 20rpx 0 26rpx;
   margin-bottom: 19rpx;
-  box-shadow: 8rpx 8rpx 15rpx rgba(0, 0, 0, 0.2);
+  border: 1px solid #e5e5e5;
   box-sizing: border-box;
 }
 .apply-row:active { opacity: .92; }
@@ -169,7 +169,7 @@ function statusText(s) {
 /* 状态胶囊：已通过=渐变白字；审核中=#E6EEED+#4E6F66；已过期/未通过=#E8E8E8+#747474 */
 .status {
   /* 稿：胶囊右缘距卡右 14.7px（28rpx），纵向比居中高 3.4px；
-     所有胶囊统一右下深灰阴影（outerShdw dx/dy 4.21 blur 7.94 a=0.20） */
+     第12条：胶囊统一 1px 浅灰边框 */
   margin: 50rpx 8rpx 0 0;
   height: 50rpx;
   min-width: 118rpx;
@@ -180,14 +180,15 @@ function statusText(s) {
   justify-content: center;
   box-sizing: border-box;
   flex-shrink: 0;
-  box-shadow: 8rpx 8rpx 15rpx rgba(0, 0, 0, 0.2);
+  border: 1px solid #e5e5e5;
 }
 .status.approved { background: linear-gradient(90deg, #538474 0%, #5ba188 53%, #77bbac 100%); }
 .status.reviewing { background: #e6eeed; }
 .status.rejected { background: #e8e8e8; }
-/* 已过期：稿上只有纯文字、没有胶囊，去掉底色/阴影/内边距 */
+/* 已过期：稿上只有纯文字、没有胶囊，去掉底色/边框/阴影/内边距 */
 .status.expired {
   background: transparent;
+  border: none;
   box-shadow: none;
   min-width: 0;
   padding: 0;

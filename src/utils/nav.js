@@ -8,7 +8,7 @@ import { setSelectedImages } from './createStore.js'
 export function goDetail(type, id) {
   const map = {
     work: "/pages/feed/detail/index?id=",
-    user: "/pages/user/detail?id=",
+    user: "/pages/user/home?id=",           // 他人「我的」只读主页
     project: "/pages/project/detail?id=",
     chat: "/pages/chat/private?userId=",
     group: "/pages/chat/group?groupId="

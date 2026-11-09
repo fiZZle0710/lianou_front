@@ -339,7 +339,9 @@ function publish() {
   display: flex;
   flex-wrap: wrap;
   gap: 22rpx; /* 稿：两个方图间距 12px */
-  margin: 22rpx 52rpx 0;
+  /* 用户要求「入画」整块左移：加号中心(68.05px) 对齐上方「加」「图」间隙(51.45px)，
+     实测需左移 16.6px ≈ 31rpx，故左内缩 52rpx → 21rpx */
+  margin: 22rpx 52rpx 0 21rpx;
 }
 
 .up-tile {

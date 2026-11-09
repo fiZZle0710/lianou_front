@@ -104,8 +104,7 @@ const skillText = computed(() => {
 .proj-card {
   position: relative;
   background: #fff;
-  /* 稿上 outerShdw：dx=4.21 dy=4.21 blur=7.94 alpha=0.20（深色）→ 8rpx 8rpx 15rpx */
-  box-shadow: 8rpx 8rpx 15rpx rgba(0, 0, 0, 0.2);
+  border: 1px solid #e5e5e5;
   box-sizing: border-box;
 }
 .proj-card:active { opacity: .94; }
@@ -191,7 +190,8 @@ const skillText = computed(() => {
 .v-list .name { font-size: 30rpx; }
 .v-list .name-sub { font-size: 22rpx; margin-left: 4rpx; }
 .v-list .quote { margin-top: 5rpx; font-size: 15rpx; }
-.v-list .kebab { width: 35rpx; height: 35rpx; flex-shrink: 0; margin-top: 14rpx; }
+/* 三点右移到与右下角箭头同一 x（中心距右 43.5rpx），上下位置不变（top=21+14=35rpx） */
+.v-list .kebab { position: absolute; right: 26rpx; top: 35rpx; width: 35rpx; height: 35rpx; margin-top: 0; }
 .v-list .body { margin-top: 20rpx; }
 .v-list .block { border-radius: 12rpx; padding: 8rpx 10rpx; height: 151rpx; }
 .v-list .block-req { margin-right: 13rpx; }

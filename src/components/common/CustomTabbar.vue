@@ -136,7 +136,7 @@ function handleCreateSelect(key) {
   width: 100rpx;
   height: 100rpx;
   border-radius: 50%;
-  background: #1da775; /* 标识库：中间加号为薄荷绿 */
+  background: #166a4c; /* 深一档：用户要求「+」颜色改深一点 */
   color: white;
   font-size: 50rpx;
   display: flex;
@@ -144,7 +144,7 @@ function handleCreateSelect(key) {
   justify-content: center;
   margin-top: -40rpx;
   z-index: 1000;
-  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8rpx 14rpx rgba(0, 0, 0, 0.28); /* 只在下方，第12条删阴影时保留 */
 }
 
 .add:active {

@@ -404,7 +404,8 @@ async function publishWork() {
   top: 4rpx;
   left: 4rpx;
   transition: 0.2s;
-  box-shadow: 0 2rpx 4rpx rgba(0,0,0,0.2);
+  border: 1px solid #e5e5e5;
+  box-sizing: border-box; /* 第12条：投影阴影→1px 浅灰边框，border-box 防撑大 */
 }
 
 .switch-box.on .switch-knob {

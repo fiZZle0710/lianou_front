@@ -13,7 +13,7 @@
             <image class="nav-icon" src="/static/icons/icon-broom.svg" mode="aspectFit" />
           </view>
           <view class="nav-btn" @click="onSearch">
-            <image class="nav-icon" src="/static/icons/icon-search-line.svg" mode="aspectFit" />
+            <image class="nav-icon" src="/static/icons/icon-search-thin.svg" mode="aspectFit" />
           </view>
         </view>
       </view>

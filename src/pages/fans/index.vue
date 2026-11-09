@@ -75,7 +75,7 @@ function goUserPage(e) {
   const id = e.currentTarget ? e.currentTarget.dataset.id : null
   if (!id) return
   uni.navigateTo({
-    url: `/pages/user/detail?userId=${id}`
+    url: `/pages/user/home?userId=${id}`
   })
 }
 

@@ -179,7 +179,7 @@ async function confirmPass() {
   height: 147rpx;
   background: #fff;
   border-radius: 11rpx;
-  box-shadow: 8rpx 8rpx 15rpx rgba(0, 0, 0, 0.2);
+  border: 1px solid #e5e5e5;
   display: flex;
   align-items: flex-start;
   padding: 0 16rpx 0 17rpx;
@@ -229,8 +229,8 @@ async function confirmPass() {
   display: flex;
   align-items: center;
   justify-content: center;
-  /* 与我的申请/项目要求/项目管理统一：胶囊右下深灰阴影（稿 slide8 outerShdw） */
-  box-shadow: 8rpx 8rpx 15rpx rgba(0, 0, 0, 0.2);
+  border: 1px solid #e5e5e5;
+  box-sizing: border-box; /* 第12条：投影阴影→1px 浅灰边框，border-box 防撑大 */
 }
 .act-btn.pass { background: linear-gradient(90deg, #538474 0%, #5ba188 53%, #77bbac 100%); }
 .act-btn.reject { background: #e8e8e8; margin-left: 6rpx; }
@@ -251,7 +251,7 @@ async function confirmPass() {
   padding: 0 12rpx;
   box-sizing: border-box;
   flex-shrink: 0;
-  box-shadow: 8rpx 8rpx 15rpx rgba(0, 0, 0, 0.2);
+  border: 1px solid #e5e5e5;
 }
 .status-t { font-size: 22rpx; color: #4e6f66; line-height: 1; }
 

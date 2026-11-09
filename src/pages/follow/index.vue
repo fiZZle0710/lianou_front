@@ -66,7 +66,7 @@ function loadMore() {
 
 function goUserPage(item) {
   uni.navigateTo({
-    url: `/pages/user/detail?userId=${item.id}`
+    url: `/pages/user/home?userId=${item.id}`
   })
 }
 
