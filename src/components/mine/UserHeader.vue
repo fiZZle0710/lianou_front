@@ -35,24 +35,26 @@
     </view>
 
     <view class="intro-wrap">
-      <view class="intro-line" :class="{ 'intro-open': introExpanded }">
-        <text class="intro-txt" :class="{ 'intro-1line': !introExpanded }">{{ userInfo.intro }}</text>
-        <text class="intro-more" @click="introExpanded = !introExpanded">{{ introExpanded ? '收起' : '……展开' }}</text>
+      <view class="intro-line">
+        <!-- Only show the toggle when the intro really wraps past one line; keep it inline after the text -->
+        <text class="intro-txt">{{ displayText }}</text>
+        <text v-if="needMore" class="intro-more" @click="toggleIntro">{{ introExpanded ? '收起' : '……展开' }}</text>
+        <!-- Hidden single-line copy used to measure natural text width -->
+        <text class="intro-measure">{{ userInfo.intro }}</text>
       </view>
     </view>
   </view>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted, nextTick, watch, getCurrentInstance } from 'vue'
 
 // 他人主页只读：不允许换封面、点头像跳资料页
 const props = defineProps({
   readonly: { type: Boolean, default: false }
 })
 
-// 签名收起/展开（设计稿：仅一行，多余收拢为「……展开」，点击向下展开）
-const introExpanded = ref(false)
+// intro state/logic moved below after userInfo
 import UserAvatar from '@/components/common/UserAvatar.vue'
 
 // 后端还没有「我的资料」接口，先按设计稿的示例数据占位
@@ -68,6 +70,43 @@ const userInfo = ref({
   tags: ['分镜', '编剧'],
   intro: '从不鸽人 · 致力于水墨与人间月色'
 })
+
+// Intro collapse: only show the toggle when the text really overflows one line,
+// and keep the toggle inline at the end of the text.
+const introExpanded = ref(false)
+const needMore = ref(false)
+const shortText = ref('')
+const instance = getCurrentInstance()
+const introFull = computed(() => userInfo.value.intro || '')
+const displayText = computed(() => {
+  if (!needMore.value || introExpanded.value) return introFull.value
+  return shortText.value
+})
+function toggleIntro() { introExpanded.value = !introExpanded.value }
+
+// The hidden single-line copy gives the natural width; wider than the box = real overflow.
+function measureIntro() {
+  nextTick(() => {
+    const root = instance && instance.proxy && instance.proxy.$el
+    if (!root || !root.querySelector) return
+    const line = root.querySelector('.intro-line')
+    const meas = root.querySelector('.intro-measure')
+    if (!line || !meas) return
+    const full = meas.getBoundingClientRect().width
+    const box = line.getBoundingClientRect().width
+    if (!full || !box) return
+    needMore.value = full > box + 1
+    const s = introFull.value
+    if (needMore.value && s.length) {
+      const avg = full / s.length
+      const reserve = avg * 5          // room for the toggle
+      const n = Math.max(1, Math.floor((box - reserve) / avg))
+      shortText.value = s.slice(0, n)
+    }
+  })
+}
+onMounted(measureIntro)
+watch(introFull, measureIntro)
 
 // 点击封面从相册换图：仅本次会话内生效。
 // 后端「我的资料」暂无封面字段，且 H5 的 tempFilePath 是 blob URL，
@@ -226,29 +265,33 @@ function onAvatarClick() {
   padding: 0 41rpx 36rpx;
 }
 .intro-line {
-  display: flex;
-  align-items: flex-end;
-}
-.intro-open {
-  align-items: flex-start;
+  position: relative;
+  line-height: 1.5;
 }
 .intro-txt {
-  flex: 1;
-  min-width: 0;
+  display: inline;
   font-size: 22rpx;
   color: #46504c;
   line-height: 1.5;
 }
-.intro-1line {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+/* Toggle follows the text inline, no longer pinned to the right */
 .intro-more {
-  flex-shrink: 0;
-  margin-left: 8rpx;
+  display: inline;
   font-size: 22rpx;
   color: #6a9a7e;
   line-height: 1.5;
+}
+/* Hidden measure copy: inline-block + nowrap means width equals natural text width */
+.intro-measure {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  display: inline-block;
+  width: auto;
+  white-space: nowrap;
+  visibility: hidden;
+  font-size: 22rpx;
+  line-height: 1.5;
+  pointer-events: none;
 }
 </style>

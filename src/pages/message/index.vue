@@ -368,14 +368,18 @@ async function onClean() {
 .page { background: #fff; min-height: 100vh; }
 .page-inner { display: flex; flex-direction: column; height: 100vh; }
 
-/* 导航 */
+/* 顶部导航统一向首页看齐：25px 状态栏留白（--sbh-blank）+ 44px 导航行，
+   图标与标题垂直居中（中心 y≈47，与广场/我的 一致） */
 .nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12rpx 28rpx;
-  padding-top: calc(env(safe-area-inset-top) + var(--sbh-blank, 0px) + 12rpx);
+  height: 44px;
+  padding: 0 28rpx;
+  margin-top: var(--sbh-blank, 0px);
+  box-sizing: border-box;
   background: #fff;
+  flex-shrink: 0;
 }
 .nav-side { width: 80rpx; height: 64rpx; display: flex; align-items: center; }
 .nav-side.right { width: auto; justify-content: flex-end; }

@@ -357,14 +357,13 @@ function goSearch() { uni.navigateTo({ url: "/pages/search/index" }) }
 <style scoped>
 .page { --page-gutter: 53rpx; background: #fff; height: 100vh; display: flex; flex-direction: column; position: relative; }
 
-/* 导航：稿上导航条 83.3px（= 状态栏 35 + 内容 48.3），标题 17.9px（33rpx）#262626 居中 */
+/* 顶部导航统一向首页看齐：上方 .sb-blank 占 25px 状态栏留白，
+   这里固定 44px 导航行，图标与标题垂直居中（中心 y≈47，与广场/我的 一致） */
 .nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  /* 稿上导航条总高 83.3px（155rpx）含状态栏：真机 sbh 吃掉多少就减多少，
-     headless 无状态栏时仍是 83.3px，量出来的坐标可直接和稿对比 */
-  height: calc(155rpx - var(--sbh, 0px));
+  height: 44px;
   padding: 0 52rpx;
   box-sizing: border-box;
   background: #fff;
@@ -380,13 +379,15 @@ function goSearch() { uni.navigateTo({ url: "/pages/search/index" }) }
 }
 
 /* 分类胶囊：稿上 roundRect 高 21.5px（40rpx）、圆角 3.8px（7rpx）、底 #F2F2F2、字 11.9px（22rpx）
-   首枚左缘 x29.8px（56rpx），枚间距 4.5px（8rpx），顶距导航 16px（30rpx） */
-/* 稿：导航底 83.3 → 胶囊顶 99.3（间距 16px=30rpx）→ 胶囊底 120.8 → 首卡顶 133.6（12.8px=24rpx） */
-.filter-bar { display: flex; align-items: flex-start; padding: 24rpx 0 0 56rpx; background: #fff; flex-shrink: 0; }
+   首枚左缘 x29.8px（56rpx），枚间距 4.5px（8rpx）。
+   顶栏统一成 44px 导航行后胶囊整行略微上移（padding-top 20rpx）；
+   pill-scroll 加高到 44rpx、文字 line-height 1.35、pill-wrap 改 flex 去基线沉降，
+   让中文字形下缘不再被 overflow:hidden 裁掉。 */
+.filter-bar { display: flex; align-items: flex-start; padding: 20rpx 0 0 56rpx; background: #fff; flex-shrink: 0; }
 /* 演示数据灰标：稿上没有它，绝对定位浮在导航右侧，不占纵向流式空间 */
 .demo-row { position: absolute; right: 24rpx; top: 100rpx; z-index: 20; }
-.pill-scroll { flex: 1; height: 40rpx; white-space: nowrap; overflow: hidden; }
-.pill-wrap { display: inline-flex; align-items: center; }
+.pill-scroll { flex: 1; height: 44rpx; white-space: nowrap; overflow: hidden; }
+.pill-wrap { display: flex; width: max-content; align-items: center; }
 .pill {
   height: 40rpx;
   border-radius: 7rpx;
@@ -398,7 +399,7 @@ function goSearch() { uni.navigateTo({ url: "/pages/search/index" }) }
   white-space: nowrap;
   box-sizing: border-box;
 }
-.pill-t { font-size: 22rpx; color: #808080; white-space: nowrap; line-height: 1; }
+.pill-t { font-size: 22rpx; color: #808080; white-space: nowrap; line-height: 1.35; }
 .pill.active .pill-t { color: #404040; font-weight: 600; }
 /* 漏斗：稿上图标 17.7px（33rpx），背后垫一层白色渐隐遮罩，让胶囊滚到边缘时不与图标重叠 */
 .funnel {
