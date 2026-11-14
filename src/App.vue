@@ -71,10 +71,12 @@ scroll-view {
 .avatar-ring-white.ring-unclip > .avatar-bg { border-radius: 50% !important; }
 
 /* 全站顶部状态栏留白：只留一条空白占位，不画时间/信号。
-   真机（APP）由各页自身的 statusBarHeight 占位处理，这里为 0 不叠加；
-   H5 没有系统状态栏，兜底 25px，让浏览器预览也能看到这条空白。
+   口径与首页 CustomNavbar 一致，所有页面（含二级页）统一：
+   APP 取 uni-app 内置的 --status-bar-height（= uni.getSystemInfoSync().statusBarHeight，
+   刘海/挖孔屏自动是真实高度）；H5 没有系统状态栏，固定 25px 兜底，
+   让浏览器预览也能看到这条空白；变量缺失时统一兜底 25px。
    统一放在各页 .page 容器里（它是 flex 列，留白只压缩滚动区，不会撑出滚动条）。 */
-page, .page { --sbh-blank: 0px; }
+page, .page { --sbh-blank: var(--status-bar-height, 25px); }
 /* #ifdef H5 */
 page, .page { --sbh-blank: 25px; }
 /* #endif */

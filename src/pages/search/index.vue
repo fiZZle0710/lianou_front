@@ -194,7 +194,7 @@ function goWorkDetail(e) {
   align-items: center;
   padding: 8px 12px;
   background: #fff;
-  padding-top: calc(44px + env(safe-area-inset-top) + var(--sbh-blank, 0px));
+  padding-top: calc(44px + var(--sbh-blank, 0px));
 }
 
 .search-input-wrapper {
