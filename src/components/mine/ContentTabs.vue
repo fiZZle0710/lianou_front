@@ -174,7 +174,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import MineWorkCard from '@/components/mine/MineWorkCard.vue'
 import SearchIcon from '@/components/common/SearchIcon.vue'
 
@@ -184,7 +184,9 @@ const props = defineProps({
     default: ''
   },
   // 他人主页：活动里「我参与的」改为「参与的」
-  isOther: { type: Boolean, default: false }
+  isOther: { type: Boolean, default: false },
+  // 他人主页传入的该用户作品；「我的」页不传，保持示例
+  externalWorks: { type: Array, default: null }
 })
 
 const emit = defineEmits(['clearPublish'])
@@ -201,6 +203,11 @@ const works = ref([
   { src: '', title: '《山居即事》', subtitle: '水墨设色 · 个人设集', views: '740', likes: 208, featured: false, liked: false },
   { src: '', title: '《雨歇檐下》', subtitle: '写意人物 · 丙午春日', views: '520', likes: 166, featured: true, liked: false }
 ])
+
+// 外部作品就位后替换示例（空数组也照用，表示该用户确实没有作品）
+watch(() => props.externalWorks, (list) => {
+  if (Array.isArray(list)) works.value = list
+}, { immediate: true, deep: true })
 
 function openWork(item) {
   // 后端作品详情接口已就绪时改成 goDetail('work', item.id)

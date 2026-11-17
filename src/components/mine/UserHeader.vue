@@ -51,7 +51,9 @@ import { ref, computed, onMounted, nextTick, watch, getCurrentInstance } from 'v
 
 // 他人主页只读：不允许换封面、点头像跳资料页
 const props = defineProps({
-  readonly: { type: Boolean, default: false }
+  readonly: { type: Boolean, default: false },
+  // 他人主页传入的对应用户资料；「我的」页不传，保持示例数据
+  profile: { type: Object, default: null }
 })
 
 // intro state/logic moved below after userInfo
@@ -70,6 +72,11 @@ const userInfo = ref({
   tags: ['分镜', '编剧'],
   intro: '从不鸽人 · 致力于水墨与人间月色'
 })
+
+// 外部资料就位后覆盖示例数据；watch(introFull) 会自动重算「……展开」
+watch(() => props.profile, (p) => {
+  if (p && typeof p === 'object') userInfo.value = { ...userInfo.value, ...p }
+}, { immediate: true, deep: true })
 
 // Intro collapse: only show the toggle when the text really overflows one line,
 // and keep the toggle inline at the end of the text.

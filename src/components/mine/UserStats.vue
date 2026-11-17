@@ -12,12 +12,23 @@
 </template>
 
 <script setup>
+import { ref, watch } from 'vue'
+
+const props = defineProps({
+  // 他人主页传入的对应数据；「我的」页不传，保持示例
+  stats: { type: Array, default: null }
+})
+
 // 数值先按设计稿示例；后端有「我的资料」接口后替换
-const list = [
+const list = ref([
   { name: 'fans', num: '3.2万', label: '粉丝', url: '/pages/fans/index' },
   { name: 'follow', num: '128', label: '关注', url: '/pages/follow/index' },
   { name: 'works', num: '49', label: '作品', url: '' }
-]
+])
+
+watch(() => props.stats, (v) => {
+  if (Array.isArray(v) && v.length) list.value = v
+}, { immediate: true, deep: true })
 
 function handleClick(item) {
   if (!item.url) return
